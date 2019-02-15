@@ -190,7 +190,7 @@ def manage_image_opr(frame):
     #print(t)
     _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
 
-    cv2.imshow('contour_thresh', thresh)
+    #cv2.imshow('contour_thresh', thresh)
 
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     #print(cnts)
@@ -207,11 +207,11 @@ def manage_image_opr(frame):
     bottommost = tuple(conts[conts[:, :, 1].argmax()][0])
     cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
     roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
-    cv2.imshow('roi', roi_copy)
+    #cv2.imshow('roi', roi_copy)
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
     #with open("histogram/hist_home", "rb") as f:
     #    hist = pickle.load(f)
-    with open("histogram/hist_rc", "rb") as f:
+    with open("histogram/hist_home2", "rb") as f:
         hist = pickle.load(f)
 
     dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
@@ -220,7 +220,7 @@ def manage_image_opr(frame):
     ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
     thresh = cv2.merge((thresh, thresh, thresh))
     r = cv2.bitwise_and(roi, thresh)
-    cv2.imshow("bitwise_and", r)
+    #cv2.imshow("bitwise_and", r)
     hsv = cv2.cvtColor(r, cv2.COLOR_BGR2HSV)
 
     # lower_skin = np.array([0, 20, 70], dtype=np.uint8)
@@ -232,19 +232,23 @@ def manage_image_opr(frame):
     mask = cv2.inRange(hsv, lower_skin, upper_skin)
     mask = cv2.GaussianBlur(mask, (5, 5), 0)
     mask = cv2.merge((mask, mask, mask))
-    cv2.imshow('mask', mask)
-    cv2.imshow('frame', frame)
+    #cv2.imshow('mask', mask)
+    #cv2.imshow('frame', frame)
     return mask
 
 
 def predict_model(mask,model):
     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-    img = cv2.resize(gray, (64, 64))
+    img = cv2.resize(gray, (128, 128))
     cv2.imshow('resized', img)
+    img = cv2.resize(gray, (64, 64))
     img2 = img.reshape(1, 64, 64, 1)
     prediction = model.predict_classes(img2)
+    predict_prob = model.predict(img2)
+    prob = predict_prob[0][np.argmax(predict_prob[0])]
+    print(predict_prob[0][np.argmax(predict_prob[0])])
 
-    return prediction
+    return prediction, prob
 
 
 def main():
@@ -265,25 +269,26 @@ def main():
             #processed = manage_image_opr(frame)
 
             # Predicting the output
-            prediction = predict_model(processed,model)
+            prediction, prob = predict_model(processed,model)
 
             #if result_map(str(prediction)) == 26:
             #    model_switch(1)
             #if result_map(str(prediction)) == 27:
             #    model_switch(2)
             #else :
-            if model == model_alpha:
-                result = str(chr(result_map(str(prediction)) + 65))
-                cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
-                cv2.imshow('Output', blackscreen)
-                print(prediction)
-                cv2.imshow("Live Feed", frame)
-            if model == model_num:
-                result = str(result_map2(str(prediction)))
-                cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
-                cv2.imshow('Output', blackscreen)
-                print(prediction)
-                cv2.imshow("Live Feed", frame)
+            if prob >=.80:
+                if model == model_alpha:
+                    result = str(chr(result_map(str(prediction)) + 65))
+                    cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
+                    cv2.imshow('Output', blackscreen)
+                    print(prediction)
+
+                if model == model_num:
+                    result = str(result_map2(str(prediction)))
+                    cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
+                    cv2.imshow('Output', blackscreen)
+                    print(prediction)
+            cv2.imshow("Live Feed", frame)
         except:
             pass
             cv2.imshow('Output', blackscreen)

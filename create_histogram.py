@@ -100,7 +100,7 @@ def main():
                 hand_hist = hand_histogram(roi)
             if is_hand_hist_created:
                 print(is_hand_hist_created)
-                with open("histogram/hist_deep2", "wb") as f:
+                with open("histogram/hist_home2", "wb") as f:
                     pickle.dump(hand_hist, f)
                 break
             else:
