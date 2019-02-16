@@ -190,12 +190,12 @@ def main():
                         model_switch(1)
                     if prediction[0] == 27:
                         model_switch(2)
-
-                    result = str(chr(prediction[0] + 65))
-                    #result = str(chr(result_map(str(prediction)) + 65))
-                    cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
-                    cv2.imshow('Output', blackscreen)
-                    print(prediction[0])
+                    else:
+                        result = str(chr(prediction[0] + 65))
+                        #result = str(chr(result_map(str(prediction)) + 65))
+                        cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
+                        cv2.imshow('Output', blackscreen)
+                        print(prediction[0])
 
 
                 if model == model_num:
@@ -203,11 +203,12 @@ def main():
                         model_switch(1)
                     if prediction[0] == 11:
                         model_switch(2)
-                    result = str(prediction[0])
-                    #result = str(result_map2(str(prediction)))
-                    cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
-                    cv2.imshow('Output', blackscreen)
-                    print(prediction[0])
+                    else:
+                        result = str(prediction[0])
+                        #result = str(result_map2(str(prediction)))
+                        cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
+                        cv2.imshow('Output', blackscreen)
+                        print(prediction[0])
 
             cv2.imshow("Live Feed", frame)
 
