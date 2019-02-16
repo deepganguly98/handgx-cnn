@@ -76,98 +76,6 @@ def model_switch(x):
 
 
 
-def result_map(x):
-    ans = -1
-    if x == "[0]":
-        ans = 0
-    if x == "[1]":
-        ans = 1
-    if x == "[2]":
-        ans = 2
-    if x == "[3]":
-        ans = 3
-    if x == "[4]":
-        ans = 4
-    if x == "[5]":
-        ans = 5
-    if x == "[6]":
-        ans = 6
-    if x == "[7]":
-        ans = 7
-    if x == "[8]":
-        ans = 8
-    if x == "[9]":
-        ans = 9
-    if x == "[10]":
-        ans = 10
-    if x == "[11]":
-        ans = 11
-    if x == "[12]":
-        ans = 12
-    if x == "[13]":
-        ans = 13
-    if x == "[14]":
-        ans = 14
-    if x == "[15]":
-        ans = 15
-    if x == "[16]":
-        ans = 16
-    if x == "[17]":
-        ans = 17
-    if x == "[18]":
-        ans = 18
-    if x == "[19]":
-        ans = 19
-    if x == "[20]":
-        ans = 20
-    if x == "[21]":
-        ans = 21
-    if x == "[22]":
-        ans = 22
-    if x == "[23]":
-        ans = 23
-    if x == "[24]":
-        ans = 24
-    if x == "[25]":
-        ans = 25
-    if x == "[26]":
-        model_switch(1)
-    if x == "[27]":
-        model_switch(2)
-    return ans
-
-def result_map2(x):
-    ans = -1
-    if x == "[0]":
-        ans = 0
-    if x == "[1]":
-        ans = 1
-    if x == "[2]":
-        ans = 2
-    if x == "[3]":
-        ans = 3
-    if x == "[4]":
-        ans = 4
-    if x == "[5]":
-        ans = 5
-    if x == "[6]":
-        ans = 6
-    if x == "[7]":
-        ans = 7
-    if x == "[8]":
-        ans = 8
-    if x == "[9]":
-        ans = 9
-    if x == "[10]":
-        model_switch(2)
-    if x == "[11]":
-        model_switch(1)
-
-
-    return ans
-
-
-
 def manage_image_opr(frame):
 
     roi = frame[100:400, 300:600]
@@ -278,16 +186,27 @@ def main():
             #else :
             if prob >=.80:
                 if model == model_alpha:
-                    result = str(chr(result_map(str(prediction)) + 65))
+                    if prediction[0] == 26:
+                        model_switch(1)
+                    if prediction[0] == 27:
+                        model_switch(2)
+
+                    result = str(chr(prediction[0] + 65))
+                    #result = str(chr(result_map(str(prediction)) + 65))
                     cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
                     cv2.imshow('Output', blackscreen)
-                    print(prediction)
+                    print(prediction[0])
 
                 if model == model_num:
-                    result = str(result_map2(str(prediction)))
+                    if prediction[0] == 10:
+                        model_switch(2)
+                    if prediction[0] == 11:
+                        model_switch(1)
+                    result = str(prediction[0])
+                    #result = str(result_map2(str(prediction)))
                     cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
                     cv2.imshow('Output', blackscreen)
-                    print(prediction)
+                    print(prediction[0])
             cv2.imshow("Live Feed", frame)
         except:
             pass
