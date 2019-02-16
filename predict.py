@@ -26,7 +26,6 @@ model_num = load_model('model/extended_0to9_2.h5')
 model = model_alpha
 
 cv2.namedWindow('Thresh limit')
-
 cv2.namedWindow('Lower limit')
 cv2.namedWindow('Upper limit')
 
