@@ -9,6 +9,7 @@ import imutils
 from numpy.core import multiarray
 import pickle
 from keras.models import load_model
+import time
 
 blackscreen = np.zeros((100,100,3), np.uint8)
 blackscreen2= np.zeros((100,100,3), np.uint8)
@@ -25,7 +26,6 @@ model_num = load_model('model/extended_0to9_2.h5')
 model = model_alpha
 
 cv2.namedWindow('Thresh limit')
-
 cv2.namedWindow('Lower limit')
 cv2.namedWindow('Upper limit')
 
@@ -145,7 +145,7 @@ def manage_image_opr(frame):
     return mask
 
 
-def predict_model(mask,model):
+def predict_model(mask):
     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
     img = cv2.resize(gray, (128, 128))
     cv2.imshow('resized', img)
@@ -177,7 +177,7 @@ def main():
             #processed = manage_image_opr(frame)
 
             # Predicting the output
-            prediction, prob = predict_model(processed,model)
+            prediction, prob = predict_model(processed)
 
             #if result_map(str(prediction)) == 26:
             #    model_switch(1)
@@ -197,18 +197,22 @@ def main():
                         cv2.imshow('Output', blackscreen)
                         print(prediction[0])
 
+
                 if model == model_num:
                     if prediction[0] == 10:
-                        model_switch(2)
-                    if prediction[0] == 11:
                         model_switch(1)
+                    if prediction[0] == 11:
+                        model_switch(2)
+
                     else:
                         result = str(prediction[0])
                         #result = str(result_map2(str(prediction)))
                         cv2.putText(blackscreen, result, bottomLeftCornerOfText, font, fontScale, fontColor, lineType)
                         cv2.imshow('Output', blackscreen)
-                    print(prediction[0])
+                        print(prediction[0])
+
             cv2.imshow("Live Feed", frame)
+
         except:
             pass
             cv2.imshow('Output', blackscreen)
