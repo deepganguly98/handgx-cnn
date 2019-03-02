@@ -1,5 +1,6 @@
 import kivy
 
+kivy.require('1.10.0')
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen

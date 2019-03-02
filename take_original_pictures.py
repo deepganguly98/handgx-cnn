@@ -87,7 +87,9 @@ while (1):
         bottommost = tuple(conts[conts[:, :, 1].argmax()][0])
         cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
         roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
+        flip3= cv2.flip(roi, 1)
         cv2.imshow('roi',roi_copy)
+        cv2.imshow('Flip_roi', flip3)
         hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
         with open("histogram/hist_home", "rb") as f:
             hist = pickle.load(f)

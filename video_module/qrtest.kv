@@ -1,0 +1,72 @@
+<QrtestHome>:
+
+    BoxLayout:
+        orientation: "vertical"
+
+        Label:
+            height: 20
+            size_hint_y: None
+            text: 'Testing the camera'
+
+        BoxLayout:
+            orientation: "horizontal"
+
+            BoxLayout:
+                orientation:"vertical"
+                height:100
+                KivyCamera:
+                    id: qrcam
+            BoxLayout:
+                orientation:"vertical"
+                height:30
+                KivyCamera:
+                    id: qrcam1
+
+        BoxLayout:
+            orientation: "horizontal"
+            height: 30
+            size_hint_y: None
+
+            Button:
+                id: butt_start
+                size_hint: 1,1
+                text: "start"
+                on_press: root.dostart()
+
+            Button:
+                id: butt_stop
+                text: "stop"
+                size_hint: 1,1
+                on_press: root.dostop()
+
+            Button:
+                id: butt_exit
+                text: "quit"
+                size_hint: 1,1
+                on_press: root.doexit()
+        BoxLayout:
+            orientation:"horizontal"
+            height:30
+            size_hint_y: None
+
+            Slider:
+                id:slider_id
+                min: 0
+                max: 255
+                value: 0
+                step: 1
+                on_value: root.slider_chanfe(slider_id.value)
+            Slider:
+                id:slider_id
+                min: 0
+                max: 255
+                value: 0
+                step: 1
+                on_value: root.slider_chanfe(slider_id.value)
+            Slider:
+                id:slider_id
+                min: 0
+                max: 255
+                value: 0
+                step: 1
+                on_value: root.slider_chanfe(slider_id.value)

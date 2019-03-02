@@ -27,13 +27,13 @@ ManagerScreen:
 				text: 'Left Hand'
 				on_release: 
 					# Code to flip frame and go to hist screen
-					root.manager.transition.direction = 'left'
+					root.manager.transition.direction = 'right'
 					app.root.current= 'hist'
 
 			Button:
 				text: 'Right Hand'
 				on_release:
-					root.manager.transition.direction = 'right' 
+					root.manager.transition.direction = 'left'
 					app.root.current= 'hist'
 
 <HistScreen>:
