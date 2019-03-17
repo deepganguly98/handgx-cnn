@@ -1,0 +1,46 @@
+#: kivy 1.10.1
+<SayThis>:
+	orientation: 'vertical'
+	button_font_size: '35sp'
+	padding: root.width * 0.02, root.height * 0.02
+	say_text : say_text
+	canvas:
+		Rectangle:
+			source: 'images/texture2.jpg'
+			pos: self.pos
+			size: self.size
+	Label:
+		text: 'Output Text'
+		size_hint: (1, None)
+		height: self.texture_size[1] + (2*root.padding[1])
+		font_size: '45sp'
+	TextInput:
+		id: say_text
+		text: 'Hello World'
+		font_size: slider.value
+	Slider:
+		id: slider
+		orientation: 'horizontal'
+		min: 0
+		max: 100
+		value: 15
+		size_hint: (1, None)
+	BoxLayout:
+		orientation: 'horizontal'
+		size_hint: (1, None)
+		height: say_this.height
+		Button:
+			id: say_this
+			text: 'Say This'
+			size_hint: (1, None)
+			height: self.texture_size[1] + (2*root.padding[1])
+			font_size: root.button_font_size
+			on_press: root.speak()
+			
+		Button:
+			id: clear
+			text: 'Clear'
+			size_hint: (1, None)
+			height: self.texture_size[1] + (2*root.padding[1])
+			font_size: root.button_font_size
+			on_press: root.clear()
