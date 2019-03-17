@@ -1,5 +1,5 @@
 import kivy
-kivy.require ('1.10.1')
+kivy.require('1.10.1')
 
 
 from kivy.app import App
@@ -15,7 +15,8 @@ class SayThis(BoxLayout):
 		engine = pyttsx.init()
 		rate = engine.getProperty('rate')
 		engine.setProperty('rate', rate-15)
-		engine.say(self.say_text.text)
+		if self.say_text.text != '':
+			engine.say(self.say_text.text)
 		engine.runAndWait()
 
 

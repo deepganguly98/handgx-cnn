@@ -1,14 +1,18 @@
 #: kivy 1.10.1
 
 <HslSliderApp>:
+    canvas:
+        Rectangle:
+            source: 'images/texture2.jpg'
+            pos: self.pos
+            size: self.size
 	BoxLayout:
 		orientation: 'horizontal'
 		BoxLayout:
 			orientation: 'vertical'
-			height: 70
+			height: 100
 			KivyCamera:
 				id: qrcam
-				height: 100
 			Label:
 				text: "Threshold value"
 				size_hint: (1, None)
@@ -20,6 +24,11 @@
 				value: 128
 				size_hint: (1, None)
 				on_value: root.thresh_change(thresh.value)
+		BoxLayout:
+            orientation:"vertical"
+            height:100
+            KivyCamera:
+                id: qrcam1
 		BoxLayout:
 			orientation: 'vertical'	
 			Label:
