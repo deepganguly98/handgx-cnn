@@ -11,7 +11,7 @@ class HomeScreen(BoxLayout):
 
 class HomeApp(App):
 	def __init__(self, **kwargs):
-		super(MainApp, self).__init__(**kwargs)
+		super(HomeApp, self).__init__(**kwargs)
 		Window.size = (400, 200)
 	def build(self):
 		return HomeScreen()
@@ -19,5 +19,5 @@ class HomeApp(App):
 kv = Builder.load_file("home.kv")
 
 if __name__ == '__main__':
-	app =HomeApp()
+	app = HomeApp()
 	app.run()

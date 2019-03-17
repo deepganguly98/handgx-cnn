@@ -23,12 +23,12 @@ class SayThis(BoxLayout):
 		self.say_text.text = ""
 		self.say_text.focus = True
 
-class OutputApp(App):
+class SayThisApp(App):
 	def build(self):
 		return SayThis()
 
 kv = Builder.load_file("output.kv")
 
 if __name__ == '__main__':
-	app = OutputApp()
+	app = SayThisApp()
 	app.run()
