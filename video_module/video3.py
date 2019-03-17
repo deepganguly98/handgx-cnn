@@ -24,7 +24,7 @@ class KivyCamera(Image):
     def start(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
-    ## start2 function for the second gray video to to copy capture from the cv2 module and refresh it at regular intervals using 'update2' function
+    # start2 function for the second gray video to to copy capture from the cv2 module and refresh it at regular intervals using 'update2' function
     def start2(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update2, 1.0 / fps)
@@ -123,7 +123,7 @@ class qrtestApp(App):
         # to set the background color of the window whivh is black by default
         Window.clearcolor = (.4,.4,.4,1)
         #set the size of the window
-        Window.size = (400, 400)
+        Window.size = (800, 600)
         homeWin = QrtestHome()
         homeWin.init_qrtest()
         return homeWin

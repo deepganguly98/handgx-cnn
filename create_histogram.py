@@ -6,7 +6,6 @@ import math
 import imutils
 import pickle
 
-#cap = cv2.VideoCapture(1)
 hand_hist = None
 hand_rect_one_x = None
 hand_rect_one_y = None
@@ -16,7 +15,6 @@ hand_rect_two_y = None
 total_rectangle = 75
 
 def draw_rect(frame):
-    print("draw rect in")
     rows, cols, _ = frame.shape
     global total_rectangle, hand_rect_one_x, hand_rect_one_y, hand_rect_two_x, hand_rect_two_y
 
@@ -80,11 +78,9 @@ def hand_histogram(frame):
     hand_hist = cv2.calcHist([roi], [0, 1], None, [180, 256], [0, 180, 0, 256])
     return cv2.normalize(hand_hist, hand_hist, 0, 255, cv2.NORM_MINMAX)
 
-
 def main():
     global hand_hist, j
     is_hand_hist_created = False
-    print('inside')
     capture = cv2.VideoCapture(0)
     while capture.isOpened():
         try:
@@ -105,9 +101,7 @@ def main():
                 break
             else:
                 roi = draw_rect(roi)
-                print("draw rect outside")
-
-            cv2.imshow("Live Feed", frame)
+                cv2.imshow("Live Feed", frame)
 
         except:
             pass
