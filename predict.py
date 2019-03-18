@@ -170,9 +170,7 @@ def main():
             pressed_key = cv2.waitKey(1)
             _, frame = capture.read()
             frame = cv2.flip(frame, 1)
-
-
-
+            
             processed = manage_image_opr(frame)
             #processed = manage_image_opr(frame)
 

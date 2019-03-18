@@ -39,9 +39,9 @@
 			on_press: root.speak()
 			
 		Button:
-			id: clear
-			text: 'Clear'
+			id: exit
+			text: 'Exit'
 			size_hint: (1, None)
 			height: self.texture_size[1] + (2*root.padding[1])
 			font_size: root.button_font_size
-			on_press: root.clear()
+			on_press: root.exitapp()
