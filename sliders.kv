@@ -6,100 +6,203 @@
             source: 'images/texture2.jpg'
             pos: self.pos
             size: self.size
-	BoxLayout:
-		orientation: 'horizontal'
+    padding: root.width*0.005 + root.height*0.005
+    pause_text : pause
+	GridLayout:
+		rows: 4
+		size: root.size
+		padding: ['10sp','15sp']
+		spacing: ['10sp','30sp']
+		GridLayout:
+			cols: 4
+			GridLayout:
+				rows: 2
+				Label:
+					text: 'Live Feed'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+				KivyCamera:
+					size_hint: (None,None)
+					width: 300
+					height: 300
+					id: qrcam
+			GridLayout:
+				rows: 2
+				Label:
+					text: 'Mask'
+					size_hint: (1, None)
+					height: self.texture_size[1]	
+	        	KivyCamera:
+	            	id: qrcam1
+			GridLayout:
+				rows:4	
+				Label:
+					text: 'UPPER'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Upper Hue:'
+					Slider:
+						size_hint: (1, None)
+						id: u_hue 
+						min: 0
+						max: 255
+						value: 15
+						on_value: root.slider_change_u_hue(u_hue.value)
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Upper Saturation:'
+					Slider:
+						size_hint: (1, None)
+						id: u_saturation
+						min: 0
+						max: 255
+						value: 15
+						on_value: root.slider_change_u_saturation(u_saturation.value)
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Upper Value:'
+					Slider:
+						size_hint: (1, None)
+						id: u_value
+						min: 0
+						max: 255
+						value: 15
+						on_value: root.slider_change_u_value(u_value.value)
+			GridLayout:
+				rows: 4
+				Label:
+					text: 'LOWER'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Lower Hue:'
+					Slider:
+						size_hint: (1, None)
+						id: l_hue
+						min: 0
+						max: 255
+						value: 15
+						on_value: root.slider_change_l_hue(l_hue.value)
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Lower Saturation:'
+					Slider:
+						size_hint: (1, None)
+						id: l_saturation
+						min: 0
+						max: 255
+						value: 15
+						on_value: root.slider_change_l_saturation(l_saturation.value)
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Lower Value:'
+					Slider:
+						size_hint: (1,None)
+						id: l_value
+						min: 0
+						max: 255
+						value: 15	
+						on_value : root.slider_change_l_value(l_value.value)	
+		GridLayout:
+			cols: 4	
+			GridLayout:
+				rows: 2
+				padding: ['10sp','60sp']
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Timer: '
+						size_hint: (1, None)
+						height: self.texture_size[1]
+					Label:
+						text: '3'
+						size_hint: (1, None)
+						height: self.texture_size[1]
+				GridLayout:
+					cols: 2
+					Label:
+						text: 'Class of character being used: '
+						size_hint: (1, None)
+						height: self.texture_size[1]
+					Label:
+						text: 'Alphabets'
+						size_hint: (1, None)
+						height: self.texture_size[1]
+			GridLayout:
+				rows: 2
+				Label:
+					text: "Last prediction"
+					size_hint: (1, None)
+					height: self.texture_size[1]
+				KivyCamera:
+					id: prediction
+					width: 50
+					height: 50
+			GridLayout:
+				rows: 3
+				spacing: ['10sp','30sp']
+				GridLayout:
+					cols: 2
+					Label:
+						text: "Threshold value:"
+						size_hint: (1, None)
+					Slider:
+						id: thresh
+						min: 0
+						max: 255
+						value: 128
+						size_hint: (1, None)
+						on_value: root.thresh_change(thresh.value)
+				GridLayout:
+					cols: 2
+					Label:
+						id: lbl_interval	
+						text: "Interval:"
+					Slider:
+						id: slider_interval
+						orientation: 'horizontal'
+						min: 3
+						max: 10
+						value: 3
+						step: 1
+						on_value: root.interval_change(slider_interval.value)
+				BoxLayout:
+					size_hint: (0.5, None)
+					height: img.height
+					Button:
+						id: img
+						text: 'Reference image'
+						size_hint: (1, None)
+						height: self.texture_size[1] + (2*root.padding[1])
+						on_press: root.image()
+					Button:
+						size_hint: (1, None)
+						height: self.texture_size[1] + (2*root.padding[1])
+						text: "Load new histogram"	
+		TextInput:
+			text: "Sentence"
 		BoxLayout:
-			orientation: 'vertical'
-			height: 100
-			KivyCamera:
-				id: qrcam
-			Label:
-				text: "Threshold value"
-				size_hint: (1, None)
-				height: self.texture_size[1]
-			Slider:
-				id: thresh
-				min: 0
-				max: 255
-				value: 128
-				size_hint: (1, None)
-				on_value: root.thresh_change(thresh.value)
-		BoxLayout:
-            orientation:"vertical"
-            height:100
-            KivyCamera:
-                id: qrcam1
-		BoxLayout:
-			orientation: 'vertical'	
-			Label:
-				text: 'UPPER'
-			BoxLayout:
-				orientation: 'horizontal'
-				Label:
-					text: 'Hue'
-				Slider:
-					size_hint: (1, None)
-					id: u_hue 
-					min: 0
-					max: 255
-					value: 15
-					on_value: root.slider_change_u_hue(u_hue.value)
-			BoxLayout:
-				orientation: 'horizontal'
-				Label:
-					text: 'Saturation'
-				Slider:
-					size_hint: (1, None)
-					id: u_saturation
-					min: 0
-					max: 255
-					value: 15
-					on_value: root.slider_change_u_saturation(u_saturation.value)
-			BoxLayout:
-				orientation: 'horizontal'
-				Label:
-					text: 'Value'
-				Slider:
-					size_hint: (1, None)
-					id: u_value
-					min: 0
-					max: 255
-					value: 15
-					on_value: root.slider_change_u_value(u_value.value)
-		BoxLayout:
-			orientation: 'vertical'
-			Label:
-				text: 'LOWER'
-			BoxLayout:
-				orientation: 'horizontal'
-				Label:
-					text: 'Hue'
-				Slider:
-					size_hint: (1, None)
-					id: l_hue
-					min: 0
-					max: 255
-					value: 15
-					on_value: root.slider_change_l_hue(l_hue.value)
-			BoxLayout:
-				orientation: 'horizontal'
-				Label:
-					text: 'Saturation'
-				Slider:
-					size_hint: (1, None)
-					id: l_saturation
-					min: 0
-					max: 255
-					value: 15
-					on_value: root.slider_change_l_saturation(l_saturation.value)
-			BoxLayout:
-				orientation: 'horizontal'
-				Label:
-					text: 'Value'
-				Slider:
-					size_hint: (1,None)
-					id: l_value
-					min: 0
-					max: 255
-					value: 15	
-					on_value : root.slider_change_l_value(l_value.value)	
+			orientation: 'horizontal'
+			size_hint: (1, None)
+			spacing: '100sp'
+			height: done.height
+			Button:
+				id: pause
+				text: "Pause"
+				size_hint: (0.5, None)
+				height: self.texture_size[1] + (2*root.padding[1])
+				on_press: root.pause_resume()
+			Button:
+				id: done
+				text: "Done"
+				size_hint: (0.5, None)
+				height: self.texture_size[1] + (2*root.padding[1])

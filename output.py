@@ -20,9 +20,9 @@ class SayThis(BoxLayout):
 		engine.runAndWait()
 
 
-	def clear(self):
-		self.say_text.text = ""
-		self.say_text.focus = True
+	def exitapp(self):
+		pass
+		# Write code to exit app and confirm exit
 
 class SayThisApp(App):
 	def build(self):
