@@ -28,8 +28,19 @@ l_saturation = 15
 l_value = 15
 t = 128
 
-class KivyCamera(Image):
+interval = 3
+#From slider 
 
+final_mask = None
+# To be passed to predict function
+
+flag = 1
+
+timer_val = 3
+
+event = None
+
+class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
@@ -122,15 +133,6 @@ class KivyCamera(Image):
         except:
             pass
             t = 128
-            # _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
-            # cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            # cnts = imutils.grab_contours(cnts)
-            # conts = max(cnts, key=lambda x: cv2.contourArea(x))
-
-
-
-
-
 
     def update(self, dt):
         global roi
@@ -149,14 +151,15 @@ class KivyCamera(Image):
             texture.blit_buffer(frame.tobytes(), colorfmt='bgr')
             self.canvas.ask_update()
     def update1(self, dt):
-        global roi
+        global roi, final_mask
         return_value, frame = self.capture.read()
         frame = cv2.flip(frame, 1)
         roi = frame[100:400, 300:600]
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (31, 31), 0)
         mask = self.manage_image_opr(frame)
-        frame = cv2.resize(mask, (128, 128))
+        final_mask = mask
+        frame = cv2.resize(mask, (300, 300))
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -172,20 +175,43 @@ roi = None
 
 class HslSliderApp(GridLayout):
     pause_text = ObjectProperty(None)
+    slider_lbl = ObjectProperty(None)
+    timer_lbl = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(HslSliderApp, self).__init__(**kwargs)
+        global flag
+        flag = 0
         Window.fullscreen = 'auto'
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
         self.ids.qrcam1.start1(capture)
 
-    def pause_resume(self):
-        if self.pause_text.text == "Pause":
-            self.pause_text.text = "Resume"
-        else:
-            self.pause_text.text = "Pause"
+    def predict(self):
+        pass
 
+    def timer_to_predict(self, dt):
+        global interval, timer_val
+        if timer_val>0:
+            timer_val= timer_val - 1
+        else:
+            self.predict()
+            timer_val = interval
+        self.timer_lbl.text = str(timer_val) + ' s' 
+
+    def pause_resume(self):
+        global flag,event
+        if flag==0:
+           self.pause_text.text = "Pause"
+           event = Clock.schedule_interval(self.timer_to_predict, 1)
+           flag = 2 
+        else: 
+            if self.pause_text.text == "Pause":
+                self.pause_text.text = "Resume"
+                event.cancel()
+            else:
+                self.pause_text.text = "Pause"
+                event()
 
     def slider_change_u_hue(self, val):
         global u_hue
@@ -215,7 +241,11 @@ class HslSliderApp(GridLayout):
         pop.open()
 
     def interval_change(self, val):
-        print(val);
+        global interval
+        self.slider_lbl.text = str(val) + ' s'
+        interval = val
+        timer_val = interval
+        self.timer_lbl.text = str(timer_val) + ' s'
 
 class SliderApp(App):
 	def build(self):

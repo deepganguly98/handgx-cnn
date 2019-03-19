@@ -8,6 +8,8 @@
             size: self.size
     padding: root.width*0.005 + root.height*0.005
     pause_text : pause
+    slider_lbl : slider_lbl
+    timer_lbl : timer_lbl
 	GridLayout:
 		rows: 4
 		size: root.size
@@ -28,16 +30,20 @@
 					id: qrcam
 			GridLayout:
 				rows: 2
+				spacing: ['0sp','32sp']
 				Label:
 					text: 'Mask'
 					size_hint: (1, None)
 					height: self.texture_size[1]	
 	        	KivyCamera:
-	            	id: qrcam1
+					size_hint: (None,None)
+					width: 230
+					height: 230
+					id: qrcam1
 			GridLayout:
 				rows:4	
 				Label:
-					text: 'UPPER'
+					text: 'UPPER HSL'
 					size_hint: (1, None)
 					height: self.texture_size[1]
 				GridLayout:
@@ -76,7 +82,7 @@
 			GridLayout:
 				rows: 4
 				Label:
-					text: 'LOWER'
+					text: 'LOWER HSL'
 					size_hint: (1, None)
 					height: self.texture_size[1]
 				GridLayout:
@@ -113,40 +119,33 @@
 						value: 15	
 						on_value : root.slider_change_l_value(l_value.value)	
 		GridLayout:
-			cols: 4	
+			cols: 4
+			padding: ['0sp','20sp']	
 			GridLayout:
 				rows: 2
-				padding: ['10sp','60sp']
-				GridLayout:
-					cols: 2
-					Label:
-						text: 'Timer: '
-						size_hint: (1, None)
-						height: self.texture_size[1]
-					Label:
-						text: '3'
-						size_hint: (1, None)
-						height: self.texture_size[1]
-				GridLayout:
-					cols: 2
-					Label:
-						text: 'Class of character being used: '
-						size_hint: (1, None)
-						height: self.texture_size[1]
-					Label:
-						text: 'Alphabets'
-						size_hint: (1, None)
-						height: self.texture_size[1]
-			GridLayout:
-				rows: 2
+				orientation: 'vertical'
 				Label:
-					text: "Last prediction"
-					size_hint: (1, None)
-					height: self.texture_size[1]
-				KivyCamera:
-					id: prediction
-					width: 50
-					height: 50
+					text: 'Timer:'
+				Label:
+					id: timer_lbl
+					text: '3s'
+			GridLayout:
+				cols: 2
+				GridLayout:
+					rows: 2
+					Label:
+						text: 'Character class'
+					Label:
+						text: 'Dummy class'
+				GridLayout:
+					rows: 2	
+					Label:
+						text: 'Last predicted character'
+					KivyCamera:
+						id: qrcam2
+						size_hint: (None,None)
+						width: 100
+						height: 100
 			GridLayout:
 				rows: 3
 				spacing: ['10sp','30sp']
@@ -163,7 +162,7 @@
 						size_hint: (1, None)
 						on_value: root.thresh_change(thresh.value)
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						id: lbl_interval	
 						text: "Interval:"
@@ -175,6 +174,13 @@
 						value: 3
 						step: 1
 						on_value: root.interval_change(slider_interval.value)
+					Label:
+						id: slider_lbl
+						text: '3s'
+						size_hint_x: None
+						width: self.texture_size[0]
+						color: (244, 66, 176, 1)
+						bold: True
 				BoxLayout:
 					size_hint: (0.5, None)
 					height: img.height
@@ -190,6 +196,7 @@
 						text: "Load new histogram"	
 		TextInput:
 			text: "Sentence"
+			font_size: '30sp'
 		BoxLayout:
 			orientation: 'horizontal'
 			size_hint: (1, None)
@@ -197,7 +204,7 @@
 			height: done.height
 			Button:
 				id: pause
-				text: "Pause"
+				text: "Start"
 				size_hint: (0.5, None)
 				height: self.texture_size[1] + (2*root.padding[1])
 				on_press: root.pause_resume()
