@@ -19,12 +19,13 @@ from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.dropdown import DropDown
+from keras.models import load_model
 
-u_hue = 15
-u_saturation = 15
-u_value = 15
-l_hue = 15
-l_saturation = 15
+u_hue = 104
+u_saturation = 135
+u_value = 148
+l_hue = 0
+l_saturation = 0
 l_value = 15
 t = 128
 
@@ -39,7 +40,11 @@ flag = 1
 timer_val = 3
 
 event = None
+model_alpha = load_model('model/extended_atoz_2.h5')
+model_num = load_model('model/extended_0to9_2.h5')
 
+model = model_alpha
+model_text = 'Alphabetic model'
 class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):
@@ -150,6 +155,7 @@ class KivyCamera(Image):
                 texture.flip_vertical()
             texture.blit_buffer(frame.tobytes(), colorfmt='bgr')
             self.canvas.ask_update()
+
     def update1(self, dt):
         global roi, final_mask
         return_value, frame = self.capture.read()
@@ -177,6 +183,8 @@ class HslSliderApp(GridLayout):
     pause_text = ObjectProperty(None)
     slider_lbl = ObjectProperty(None)
     timer_lbl = ObjectProperty(None)
+    predicted_output = ObjectProperty(None)
+    model_used = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(HslSliderApp, self).__init__(**kwargs)
@@ -187,8 +195,61 @@ class HslSliderApp(GridLayout):
         self.ids.qrcam.start(capture)
         self.ids.qrcam1.start1(capture)
 
+    def model_switch(self, x):
+        global model,model_text
+        if x == 1:
+            model = model_num
+            model_text= "Numeric Model"
+
+        if x == 2:
+            model = model_alpha
+            model_text ="Alphabetic model"
+        return model_text
+
+
+    def predict_model(self,mask):
+        mask = cv2.merge((mask, mask, mask))
+        gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(gray, (128, 128))
+        cv2.imshow('resized', img)
+        img = cv2.resize(gray, (64, 64))
+        img2 = img.reshape(1, 64, 64, 1)
+        prediction = model.predict_classes(img2)
+        predict_prob = model.predict(img2)
+        prob = predict_prob[0][np.argmax(predict_prob[0])]
+        print(predict_prob[0][np.argmax(predict_prob[0])])
+
+        return prediction, prob
+
     def predict(self):
-        pass
+        print('predict called')
+        # Predicting the output
+        global final_mask,model_text
+        prediction, prob = self.predict_model(final_mask)
+        if prob >= .80:
+            if model == model_alpha:
+                if prediction[0] == 26:
+                    model_text=self.model_switch(1)
+                if prediction[0] == 27:
+                    model_text=self.model_switch(2)
+                else:
+                    result = str(chr(prediction[0] + 65))
+                    # result = str(chr(result_map(str(prediction)) + 65))
+                    self.predicted_output.text = result
+                    self.model_used.text = model_text
+                    print(prediction[0])
+
+            if model == model_num:
+                if prediction[0] == 10:
+                    model_text=self.model_switch(1)
+                if prediction[0] == 11:
+                    model_text=self.model_switch(2)
+                else:
+                    result = str(prediction[0])
+                    # result = str(result_map2(str(prediction)))
+                    self.predicted_output.text = result
+                    self.model_used.text = model_text
+                    print(prediction[0])
 
     def timer_to_predict(self, dt):
         global interval, timer_val
@@ -215,22 +276,28 @@ class HslSliderApp(GridLayout):
 
     def slider_change_u_hue(self, val):
         global u_hue
-        u_hue = val 
+        u_hue = val
+        # print('u_hue=',val)
     def slider_change_u_saturation(self, val):
         global u_saturation
         u_saturation = val
+        # print('u_saturation=', val)
     def slider_change_u_value(self, val):
         global u_value
         u_value = val
+        # print('u_value=', val)
     def slider_change_l_hue(self, val):
         global l_hue
         l_hue = val
+        # print('l_hue=', val)
     def slider_change_l_saturation(self, val):
         global l_saturation
         l_saturation = val
+        # print('l_saturation=', val)
     def slider_change_l_value(self, val):
         global l_value
         l_value = val
+        # print('l_value=', val)
     def thresh_change(self,val):
         global t
         t = val
