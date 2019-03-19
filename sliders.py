@@ -56,49 +56,88 @@ class KivyCamera(Image):
             cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
             conts = max(cnts, key=lambda x: cv2.contourArea(x))
+            M = cv2.moments(conts)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            roi_copy = roi.copy()
+            cv2.drawContours(roi, [conts], -1, (0, 255, 0), 2)
+            leftmost = tuple(conts[conts[:, :, 0].argmin()][0])
+            rightmost = tuple(conts[conts[:, :, 0].argmax()][0])
+            topmost = tuple(conts[conts[:, :, 1].argmin()][0])
+            bottommost = tuple(conts[conts[:, :, 1].argmax()][0])
+            cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
+            roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
+            hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+            with open("histogram/hist_home2", "rb") as f:
+                hist = pickle.load(f)
+
+            dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
+            disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
+            cv2.filter2D(dst, -1, disc, dst)
+            ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
+            thresh = cv2.merge((thresh, thresh, thresh))
+            r = cv2.bitwise_and(roi, thresh)
+            hsv = cv2.cvtColor(r, cv2.COLOR_BGR2HSV)
+
+            lower_skin = np.array([l_hue, l_saturation, l_value], dtype=np.uint8)
+            upper_skin = np.array([u_hue, u_saturation, u_value], dtype=np.uint8)
+
+            mask = cv2.inRange(hsv, lower_skin, upper_skin)
+            mask = cv2.GaussianBlur(mask, (5, 5), 0)
+            return mask
         except:
+            pass
             t=128
+            mask = np.zeros((128, 128), np.uint8)
+            return mask
+            # _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
+            # cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # cnts = imutils.grab_contours(cnts)
+            # conts = max(cnts, key=lambda x: cv2.contourArea(x))
+
+
+    def trackpalm(self, frame):
+        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
+
+        roi = frame[100:400, 300:600]
+        cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 3)
+        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(gray, (31, 31), 0)
+
+        try:
             _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
             cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
             conts = max(cnts, key=lambda x: cv2.contourArea(x))
+            M = cv2.moments(conts)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            roi_copy = roi.copy()
+            cv2.drawContours(roi, [conts], -1, (0, 255, 0), 2)
+            leftmost = tuple(conts[conts[:, :, 0].argmin()][0])
+            rightmost = tuple(conts[conts[:, :, 0].argmax()][0])
+            topmost = tuple(conts[conts[:, :, 1].argmin()][0])
+            bottommost = tuple(conts[conts[:, :, 1].argmax()][0])
+            cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
+        except:
+            pass
+            t = 128
+            # _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
+            # cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # cnts = imutils.grab_contours(cnts)
+            # conts = max(cnts, key=lambda x: cv2.contourArea(x))
 
 
-        M = cv2.moments(conts)
-        cX = int(M["m10"] / M["m00"])
-        cY = int(M["m01"] / M["m00"])
-        roi_copy = roi.copy()
-        cv2.drawContours(roi, [conts], -1, (0, 255, 0), 2)
-        leftmost = tuple(conts[conts[:, :, 0].argmin()][0])
-        rightmost = tuple(conts[conts[:, :, 0].argmax()][0])
-        topmost = tuple(conts[conts[:, :, 1].argmin()][0])
-        bottommost = tuple(conts[conts[:, :, 1].argmax()][0])
-        cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
-        roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
-        hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-        with open("histogram/hist_home2", "rb") as f:
-            hist = pickle.load(f)
 
-        dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
-        disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
-        cv2.filter2D(dst, -1, disc, dst)
-        ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
-        thresh = cv2.merge((thresh, thresh, thresh))
-        r = cv2.bitwise_and(roi, thresh)
-        hsv = cv2.cvtColor(r, cv2.COLOR_BGR2HSV)
 
-        lower_skin = np.array([l_hue, l_saturation, l_value], dtype=np.uint8)
-        upper_skin = np.array([u_hue, u_saturation, u_value], dtype=np.uint8)
 
-        mask = cv2.inRange(hsv, lower_skin, upper_skin)
-        mask = cv2.GaussianBlur(mask, (5, 5), 0)
-        return mask
 
     def update(self, dt):
         global roi
         return_value, frame = self.capture.read()
         frame = cv2.flip(frame, 1)
-        cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 3)
+
+        self.trackpalm(frame)
 
         if return_value:
             texture = self.texture
