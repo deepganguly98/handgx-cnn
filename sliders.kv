@@ -10,6 +10,8 @@
     pause_text : pause
     slider_lbl : slider_lbl
     timer_lbl : timer_lbl
+    predicted_output : predicted_output
+    model_used : model_used
 	GridLayout:
 		rows: 4
 		size: root.size
@@ -55,6 +57,7 @@
 						id: u_hue 
 						min: 0
 						max: 255
+						step:1
 						value: 15
 						on_value: root.slider_change_u_hue(u_hue.value)
 				GridLayout:
@@ -65,6 +68,7 @@
 						size_hint: (1, None)
 						id: u_saturation
 						min: 0
+						step:1
 						max: 255
 						value: 15
 						on_value: root.slider_change_u_saturation(u_saturation.value)
@@ -76,6 +80,7 @@
 						size_hint: (1, None)
 						id: u_value
 						min: 0
+						step:1
 						max: 255
 						value: 15
 						on_value: root.slider_change_u_value(u_value.value)
@@ -93,6 +98,7 @@
 						size_hint: (1, None)
 						id: l_hue
 						min: 0
+						step:1
 						max: 255
 						value: 15
 						on_value: root.slider_change_l_hue(l_hue.value)
@@ -104,6 +110,7 @@
 						size_hint: (1, None)
 						id: l_saturation
 						min: 0
+						step:1
 						max: 255
 						value: 15
 						on_value: root.slider_change_l_saturation(l_saturation.value)
@@ -115,6 +122,7 @@
 						size_hint: (1,None)
 						id: l_value
 						min: 0
+						step:1
 						max: 255
 						value: 15	
 						on_value : root.slider_change_l_value(l_value.value)	
@@ -136,16 +144,15 @@
 					Label:
 						text: 'Character class'
 					Label:
-						text: 'Dummy class'
+						text: ''
+						id: model_used
 				GridLayout:
 					rows: 2	
 					Label:
 						text: 'Last predicted character'
-					KivyCamera:
-						id: qrcam2
-						size_hint: (None,None)
-						width: 100
-						height: 100
+					Label:
+					    text:""
+					    id: predicted_output
 			GridLayout:
 				rows: 3
 				spacing: ['10sp','30sp']
@@ -158,6 +165,7 @@
 						id: thresh
 						min: 0
 						max: 255
+						step:1
 						value: 128
 						size_hint: (1, None)
 						on_value: root.thresh_change(thresh.value)
