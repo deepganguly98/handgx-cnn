@@ -10,8 +10,13 @@
     pause_text : pause
     slider_lbl : slider_lbl
     timer_lbl : timer_lbl
+    thresh_lbl : thresh_lbl
     predicted_output : predicted_output
+    sentence : sentence 
     model_used : model_used
+    label_fonts_1 : '30sp'
+    label_fonts_2 : '25sp'
+    label_fonts_3 : '20sp'
 	GridLayout:
 		rows: 4
 		size: root.size
@@ -25,6 +30,7 @@
 					text: 'Live Feed'
 					size_hint: (1, None)
 					height: self.texture_size[1]
+					font_size: root.label_fonts_3
 				KivyCamera:
 					size_hint: (None,None)
 					width: 300
@@ -36,7 +42,8 @@
 				Label:
 					text: 'Mask'
 					size_hint: (1, None)
-					height: self.texture_size[1]	
+					height: self.texture_size[1]
+					font_size: root.label_fonts_3
 	        	KivyCamera:
 					size_hint: (None,None)
 					width: 230
@@ -48,10 +55,12 @@
 					text: 'UPPER HSL'
 					size_hint: (1, None)
 					height: self.texture_size[1]
+					font_size: root.label_fonts_3
 				GridLayout:
 					cols: 2
 					Label:
 						text: 'Upper Hue:'
+						font_size: root.label_fonts_3
 					Slider:
 						size_hint: (1, None)
 						id: u_hue 
@@ -64,6 +73,7 @@
 					cols: 2
 					Label:
 						text: 'Upper Saturation:'
+						font_size: root.label_fonts_3
 					Slider:
 						size_hint: (1, None)
 						id: u_saturation
@@ -76,6 +86,7 @@
 					cols: 2
 					Label:
 						text: 'Upper Value:'
+						font_size: root.label_fonts_3
 					Slider:
 						size_hint: (1, None)
 						id: u_value
@@ -90,10 +101,12 @@
 					text: 'LOWER HSL'
 					size_hint: (1, None)
 					height: self.texture_size[1]
+					font_size: root.label_fonts_3
 				GridLayout:
 					cols: 2
 					Label:
 						text: 'Lower Hue:'
+						font_size: root.label_fonts_3
 					Slider:
 						size_hint: (1, None)
 						id: l_hue
@@ -106,6 +119,7 @@
 					cols: 2
 					Label:
 						text: 'Lower Saturation:'
+						font_size: root.label_fonts_3
 					Slider:
 						size_hint: (1, None)
 						id: l_saturation
@@ -118,6 +132,7 @@
 					cols: 2
 					Label:
 						text: 'Lower Value:'
+						font_size: root.label_fonts_3
 					Slider:
 						size_hint: (1,None)
 						id: l_value
@@ -127,37 +142,54 @@
 						value: 15	
 						on_value : root.slider_change_l_value(l_value.value)	
 		GridLayout:
-			cols: 4
-			padding: ['0sp','20sp']	
+			cols: 4	
+			padding: ['0sp','20sp']
 			GridLayout:
 				rows: 2
+				padding: ['10sp','30sp']
 				orientation: 'vertical'
 				Label:
 					text: 'Timer:'
+					font_size: root.label_fonts_2
+					color: (0.250, 0.95, .90, 1)
 				Label:
 					id: timer_lbl
 					text: '3s'
+					size_hint: (1, None)
+					color: (0.65, 0.95, 0.35, 1)
+					height: self.texture_size[1]
+					font_size: '40sp'
 			GridLayout:
 				cols: 2
 				GridLayout:
 					rows: 2
+					padding: ['10sp','30sp']
 					Label:
 						text: 'Character class'
+						color: (0.95, 0.81, 0.25, 1)
+						font_size: root.label_fonts_2
 					Label:
-						text: ''
 						id: model_used
+						text: 'Alphabet'
+						font_size: root.label_fonts_2
+						bold: True
 				GridLayout:
-					rows: 2	
+					rows: 2
+					padding: ['0sp','30sp']	
 					Label:
-						text: 'Last predicted character'
+						text: 'Last prediction'
+						color: (0.95, 0.47, 0.25, 1)
+						font_size: root.label_fonts_2
 					Label:
-					    text:""
-					    id: predicted_output
+						id: predicted_output
+					    text:"A"
+					    bold: True
+					    font_size: root.label_fonts_1
 			GridLayout:
 				rows: 3
 				spacing: ['10sp','30sp']
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: "Threshold value:"
 						size_hint: (1, None)
@@ -166,9 +198,17 @@
 						min: 0
 						max: 255
 						step:1
+						cursor_width:'28sp'
 						value: 128
 						size_hint: (1, None)
 						on_value: root.thresh_change(thresh.value)
+					Label:
+						id: thresh_lbl
+						text: '128'
+						size_hint_x: None
+						width: self.texture_size[0]
+						color: (0.25, 0.95, 0.73, 1)
+						bold: True
 				GridLayout:
 					cols: 3
 					Label:
@@ -177,9 +217,10 @@
 					Slider:
 						id: slider_interval
 						orientation: 'horizontal'
-						min: 3
+						min: 1
 						max: 10
 						value: 3
+						cursor_width:'28sp'
 						step: 1
 						on_value: root.interval_change(slider_interval.value)
 					Label:
@@ -187,7 +228,7 @@
 						text: '3s'
 						size_hint_x: None
 						width: self.texture_size[0]
-						color: (244, 66, 176, 1)
+						color: (0.95, 0.25, 0.69, 1)
 						bold: True
 				BoxLayout:
 					size_hint: (0.5, None)
@@ -203,7 +244,7 @@
 						height: self.texture_size[1] + (2*root.padding[1])
 						text: "Load new histogram"	
 		TextInput:
-			text: "Sentence"
+			id : sentence
 			font_size: '30sp'
 		BoxLayout:
 			orientation: 'horizontal'

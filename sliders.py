@@ -106,11 +106,6 @@ class KivyCamera(Image):
             t=128
             mask = np.zeros((128, 128), np.uint8)
             return mask
-            # _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
-            # cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            # cnts = imutils.grab_contours(cnts)
-            # conts = max(cnts, key=lambda x: cv2.contourArea(x))
-
 
     def trackpalm(self, frame):
         global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
@@ -185,6 +180,8 @@ class HslSliderApp(GridLayout):
     timer_lbl = ObjectProperty(None)
     predicted_output = ObjectProperty(None)
     model_used = ObjectProperty(None)
+    thresh_lbl = ObjectProperty(None)
+    sentence = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(HslSliderApp, self).__init__(**kwargs)
@@ -222,7 +219,6 @@ class HslSliderApp(GridLayout):
         return prediction, prob
 
     def predict(self):
-        print('predict called')
         # Predicting the output
         global final_mask,model_text
         prediction, prob = self.predict_model(final_mask)
@@ -249,7 +245,7 @@ class HslSliderApp(GridLayout):
                     # result = str(result_map2(str(prediction)))
                     self.predicted_output.text = result
                     self.model_used.text = model_text
-                    print(prediction[0])
+        self.sentence.text = self.sentence.text + result        
 
     def timer_to_predict(self, dt):
         global interval, timer_val
@@ -258,6 +254,12 @@ class HslSliderApp(GridLayout):
         else:
             self.predict()
             timer_val = interval
+        
+        if timer_val == 0:
+            self.timer_lbl.color = (1, 0, 0, 1)
+        else:
+            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
+
         self.timer_lbl.text = str(timer_val) + ' s' 
 
     def pause_resume(self):
@@ -301,18 +303,19 @@ class HslSliderApp(GridLayout):
     def thresh_change(self,val):
         global t
         t = val
+        self.thresh_lbl.text = str(val) 
+
+    def interval_change(self, val):
+        global interval, timer_val
+        self.slider_lbl.text = str(val) + ' s'
+        interval = int(val)
+        timer_val = interval
+        self.timer_lbl.text = str(timer_val) + ' s'
 
     def image(self):
         pop = Popup(title='Hand Signs Reference Chart', content=Image(source='images/texture3.jpg'),
                     size_hint=(None, None), size=(800, 600))
         pop.open()
-
-    def interval_change(self, val):
-        global interval
-        self.slider_lbl.text = str(val) + ' s'
-        interval = val
-        timer_val = interval
-        self.timer_lbl.text = str(timer_val) + ' s'
 
 class SliderApp(App):
 	def build(self):
