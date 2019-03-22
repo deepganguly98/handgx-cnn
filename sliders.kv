@@ -7,6 +7,7 @@
             pos: self.pos
             size: self.size
     padding: root.width*0.005 + root.height*0.005
+    
     pause_text : pause
     slider_lbl : slider_lbl
     timer_lbl : timer_lbl
@@ -14,9 +15,18 @@
     predicted_output : predicted_output
     sentence : sentence 
     model_used : model_used
+
+    u_hue_lbl : u_hue_lbl 
+    u_sat_lbl : u_sat_lbl 
+    u_val_lbl : u_val_lbl 
+    l_hue_lbl : l_hue_lbl 
+    l_sat_lbl : l_sat_lbl 
+    l_val_lbl : l_val_lbl 
+
     label_fonts_1 : '30sp'
     label_fonts_2 : '25sp'
     label_fonts_3 : '20sp'
+    label_fonts_4 : '16sp'
 	GridLayout:
 		rows: 4
 		size: root.size
@@ -40,7 +50,7 @@
 				rows: 2
 				spacing: ['0sp','32sp']
 				Label:
-					text: 'Mask'
+					text: 'Final mask to be Input to CNN'
 					size_hint: (1, None)
 					height: self.texture_size[1]
 					font_size: root.label_fonts_3
@@ -56,45 +66,73 @@
 					size_hint: (1, None)
 					height: self.texture_size[1]
 					font_size: root.label_fonts_3
+					padding: ['10sp','0sp']
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: 'Upper Hue:'
-						font_size: root.label_fonts_3
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.95, 0.39, 0.25,1)
 					Slider:
 						size_hint: (1, None)
 						id: u_hue 
 						min: 0
 						max: 255
 						step:1
-						value: 15
+						value: 104
 						on_value: root.slider_change_u_hue(u_hue.value)
+					Label:
+						id: u_hue_lbl
+						text: '104'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: 'Upper Saturation:'
-						font_size: root.label_fonts_3
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.25, 0.95, 0.73, 1)
 					Slider:
 						size_hint: (1, None)
 						id: u_saturation
 						min: 0
 						step:1
 						max: 255
-						value: 15
+						value: 135
 						on_value: root.slider_change_u_saturation(u_saturation.value)
+					Label:
+						id: u_sat_lbl
+						text: '135'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: 'Upper Value:'
-						font_size: root.label_fonts_3
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.76, 0.25, 0.95, 1)
 					Slider:
 						size_hint: (1, None)
 						id: u_value
 						min: 0
 						step:1
 						max: 255
-						value: 15
+						value: 148
 						on_value: root.slider_change_u_value(u_value.value)
+					Label:
+						id: u_val_lbl
+						text: '104'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
 			GridLayout:
 				rows: 4
 				Label:
@@ -103,36 +141,56 @@
 					height: self.texture_size[1]
 					font_size: root.label_fonts_3
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: 'Lower Hue:'
-						font_size: root.label_fonts_3
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.95, 0.39, 0.25,1)
 					Slider:
 						size_hint: (1, None)
 						id: l_hue
 						min: 0
 						step:1
 						max: 255
-						value: 15
+						value: 0
 						on_value: root.slider_change_l_hue(l_hue.value)
+					Label:
+						id: l_hue_lbl
+						text: '104'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: 'Lower Saturation:'
-						font_size: root.label_fonts_3
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.25, 0.95, 0.73, 1)
 					Slider:
 						size_hint: (1, None)
 						id: l_saturation
 						min: 0
 						step:1
 						max: 255
-						value: 15
+						value: 0
 						on_value: root.slider_change_l_saturation(l_saturation.value)
+					Label:
+						id: l_sat_lbl
+						text: '104'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
 				GridLayout:
-					cols: 2
+					cols: 3
 					Label:
 						text: 'Lower Value:'
-						font_size: root.label_fonts_3
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.76, 0.25, 0.95, 1)
 					Slider:
 						size_hint: (1,None)
 						id: l_value
@@ -140,7 +198,14 @@
 						step:1
 						max: 255
 						value: 15	
-						on_value : root.slider_change_l_value(l_value.value)	
+						on_value : root.slider_change_l_value(l_value.value)
+					Label:
+						id: l_val_lbl
+						text: '104'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True	
 		GridLayout:
 			cols: 4	
 			padding: ['0sp','20sp']
@@ -193,6 +258,7 @@
 					Label:
 						text: "Threshold value:"
 						size_hint: (1, None)
+						font_size: root.label_fonts_3
 					Slider:
 						id: thresh
 						min: 0
@@ -214,6 +280,7 @@
 					Label:
 						id: lbl_interval	
 						text: "Interval:"
+						font_size: root.label_fonts_3
 					Slider:
 						id: slider_interval
 						orientation: 'horizontal'
@@ -249,16 +316,18 @@
 		BoxLayout:
 			orientation: 'horizontal'
 			size_hint: (1, None)
-			spacing: '100sp'
+			spacing: '10sp'
 			height: done.height
 			Button:
 				id: pause
 				text: "Start"
-				size_hint: (0.5, None)
+				size_hint: (None, None)
+				width: '200sp'
 				height: self.texture_size[1] + (2*root.padding[1])
 				on_press: root.pause_resume()
 			Button:
 				id: done
 				text: "Done"
-				size_hint: (0.5, None)
+				size_hint: (None, None)
+				width: '200sp'
 				height: self.texture_size[1] + (2*root.padding[1])

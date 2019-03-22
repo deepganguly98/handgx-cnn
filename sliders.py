@@ -183,6 +183,13 @@ class HslSliderApp(GridLayout):
     thresh_lbl = ObjectProperty(None)
     sentence = ObjectProperty(None)
 
+    u_hue_lbl = ObjectProperty(None)
+    u_sat_lbl = ObjectProperty(None)
+    u_val_lbl = ObjectProperty(None)
+    l_hue_lbl = ObjectProperty(None)
+    l_sat_lbl = ObjectProperty(None)
+    l_val_lbl = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(HslSliderApp, self).__init__(**kwargs)
         global flag
@@ -245,14 +252,14 @@ class HslSliderApp(GridLayout):
                     # result = str(result_map2(str(prediction)))
                     self.predicted_output.text = result
                     self.model_used.text = model_text
-        self.sentence.text = self.sentence.text + result        
+        self.sentence.text = self.sentence.text + result + "(prob=" + str(prob*100) + "%)"        
 
     def timer_to_predict(self, dt):
         global interval, timer_val
         if timer_val>0:
             timer_val= timer_val - 1
         else:
-            self.predict()
+            # self.predict()
             timer_val = interval
         
         if timer_val == 0:
@@ -278,31 +285,37 @@ class HslSliderApp(GridLayout):
 
     def slider_change_u_hue(self, val):
         global u_hue
-        u_hue = val
-        # print('u_hue=',val)
+        u_hue = int(val)
+        self.u_hue_lbl.text = str(u_hue)
+        
     def slider_change_u_saturation(self, val):
         global u_saturation
-        u_saturation = val
-        # print('u_saturation=', val)
+        u_saturation = int(val)
+        self.u_sat_lbl.text = str(u_saturation)
+        
     def slider_change_u_value(self, val):
         global u_value
-        u_value = val
-        # print('u_value=', val)
+        u_value = int(val)
+        self.u_val_lbl.text = str(u_value)
+        
     def slider_change_l_hue(self, val):
         global l_hue
-        l_hue = val
-        # print('l_hue=', val)
+        l_hue = int(val)
+        self.l_hue_lbl.text = str(l_hue)
+        
     def slider_change_l_saturation(self, val):
         global l_saturation
-        l_saturation = val
-        # print('l_saturation=', val)
+        l_saturation = int(val)
+        self.l_sat_lbl.text = str(l_saturation)
+        
     def slider_change_l_value(self, val):
         global l_value
-        l_value = val
-        # print('l_value=', val)
+        l_value = int(val)
+        self.l_val_lbl.text = str(l_value)
+
     def thresh_change(self,val):
         global t
-        t = val
+        t = int(val)
         self.thresh_lbl.text = str(val) 
 
     def interval_change(self, val):
@@ -314,7 +327,7 @@ class HslSliderApp(GridLayout):
 
     def image(self):
         pop = Popup(title='Hand Signs Reference Chart', content=Image(source='images/texture3.jpg'),
-                    size_hint=(None, None), size=(800, 600))
+                    size_hint=(None, None), size=(1000, 800))
         pop.open()
 
 class SliderApp(App):
