@@ -226,8 +226,10 @@ class HslSliderApp(GridLayout):
             if model == model_alpha:
                 if prediction[0] == 26:
                     model_text=self.model_switch(1)
+                    result='model switch'
                 if prediction[0] == 27:
                     model_text=self.model_switch(2)
+                    result = 'model switch'
                 else:
                     result = str(chr(prediction[0] + 65))
                     # result = str(chr(result_map(str(prediction)) + 65))
@@ -238,8 +240,10 @@ class HslSliderApp(GridLayout):
             if model == model_num:
                 if prediction[0] == 10:
                     model_text=self.model_switch(1)
+                    result = 'model switch'
                 if prediction[0] == 11:
                     model_text=self.model_switch(2)
+                    result = 'model switch'
                 else:
                     result = str(prediction[0])
                     # result = str(result_map2(str(prediction)))
