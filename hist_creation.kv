@@ -1,0 +1,51 @@
+#: kivy 1.10.1
+
+<HistCreationApp>:
+	orientation: 'vertical'
+	canvas:
+		Rectangle:
+			source: "images/texture9.jpg"
+			pos: root.pos
+			size: root.size
+	padding: root.width*0.02, root.height*0.02
+	button_font_size: '25sp'
+
+    lbl_generate : generate
+
+	Label:
+		text: "Place you hand on the squares inside the green box"
+		size_hint: (1,None)
+		height: self.texture_size[1]
+		font_size: '30sp'
+	BoxLayout:
+        orientation: "vertical"
+        BoxLayout:
+            orientation:"vertical"
+            height: 50
+            KivyCamera:
+                id: qrcam1
+        BoxLayout:
+    		orientation: 'horizontal'
+    		size_hint: (1,None)
+    		height: generate.height 
+    		Button:
+    			id: generate
+    			text: 'Generate histogram'
+    			font_size: root.button_font_size
+    			size_hint: (1,None)
+    			height: self.texture_size[1] + (2*root.padding[1])
+    			on_press: root.generate()
+    		Button:
+    			id: load
+    			text: 'Load Histogram'
+    			font_size: root.button_font_size
+    			size_hint: (1,None)
+    			height: self.texture_size[1] + (2*root.padding[1])
+    			on_press: root.load()
+    		Button:
+    			id: accept
+    			text: 'Accept'
+    			font_size: root.button_font_size
+    			size_hint: (1,None)
+    			height: self.texture_size[1] + (2*root.padding[1])
+    			on_press: root.accept()

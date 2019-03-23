@@ -1,0 +1,37 @@
+#: kivy 1.10.1
+<HomeScreen>:
+	orientation: 'vertical'
+	padding: root.width*0.02 + root.height*0.02
+	canvas:
+		Rectangle:
+			source: "images/texture7.jpg"
+			pos: self.pos
+			size: self.size
+	button_font_size: '35sp'
+	Label:
+		text: 'Choose preferred hand orientation'
+		size_hint: (1,None)
+		font_size: '25sp' 
+	BoxLayout:
+		orientation: 'horizontal'
+		size_hint: (1,None)
+		height: left_hand.height
+		spacing: '20sp'
+		Button:
+			id: left_hand
+			text: '      Left'
+			size_hint: (1,None)
+			height: self.texture_size[1] + (2*root.padding[1])
+			font_size: root.button_font_size
+			background_normal: 'images/left.png'
+			background_color: (1, 1, 1, 0.5)
+			on_press: root.flip(0)
+		Button:
+			id: right_hand
+			text: 'Right      '
+			size_hint: (1,None)
+			height: self.texture_size[1] + (2*root.padding[1])
+			font_size: root.button_font_size
+			background_normal: 'images/right.png'
+			background_color: (1, 1, 1, 0.5)
+			on_press: root.flip(1)
