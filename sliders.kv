@@ -80,11 +80,11 @@
 						min: 0
 						max: 255
 						step:1
-						value: 104
+						value: 88
 						on_value: root.slider_change_u_hue(u_hue.value)
 					Label:
 						id: u_hue_lbl
-						text: '104'
+						text: '88'
 						size_hint_x: None
 						width: self.texture_size[0] + root.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -102,11 +102,11 @@
 						min: 0
 						step:1
 						max: 255
-						value: 135
+						value: 169
 						on_value: root.slider_change_u_saturation(u_saturation.value)
 					Label:
 						id: u_sat_lbl
-						text: '135'
+						text: '169'
 						size_hint_x: None
 						width: self.texture_size[0] + root.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -124,11 +124,11 @@
 						min: 0
 						step:1
 						max: 255
-						value: 148
+						value: 190
 						on_value: root.slider_change_u_value(u_value.value)
 					Label:
 						id: u_val_lbl
-						text: '104'
+						text: '190'
 						size_hint_x: None
 						width: self.texture_size[0] + root.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -157,7 +157,7 @@
 						on_value: root.slider_change_l_hue(l_hue.value)
 					Label:
 						id: l_hue_lbl
-						text: '104'
+						text: '0'
 						size_hint_x: None
 						width: self.texture_size[0] + root.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -175,11 +175,11 @@
 						min: 0
 						step:1
 						max: 255
-						value: 0
+						value: 54
 						on_value: root.slider_change_l_saturation(l_saturation.value)
 					Label:
 						id: l_sat_lbl
-						text: '104'
+						text: '54'
 						size_hint_x: None
 						width: self.texture_size[0] + root.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -197,11 +197,11 @@
 						min: 0
 						step:1
 						max: 255
-						value: 15	
+						value: 0
 						on_value : root.slider_change_l_value(l_value.value)
 					Label:
 						id: l_val_lbl
-						text: '104'
+						text: '0'
 						size_hint_x: None
 						width: self.texture_size[0] + root.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -235,7 +235,7 @@
 						font_size: root.label_fonts_2
 					Label:
 						id: model_used
-						text: 'Alphabet'
+						text: 'Alphabetic model'
 						font_size: root.label_fonts_2
 						bold: True
 				GridLayout:
@@ -247,7 +247,7 @@
 						font_size: root.label_fonts_2
 					Label:
 						id: predicted_output
-					    text:"A"
+					    text:""
 					    bold: True
 					    font_size: root.label_fonts_1
 			GridLayout:
