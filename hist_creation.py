@@ -7,6 +7,7 @@ import numpy as np
 from create_histogram import *
 
 import kivy.core.text
+from kivy.uix.label import Label
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
@@ -15,6 +16,10 @@ from kivy.base import EventLoop
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
+from kivy.properties import ObjectProperty
+from kivy.uix.popup import Popup
+
+flag = 0
 
 class KivyCamera(Image):
 
@@ -34,7 +39,7 @@ class KivyCamera(Image):
         global roi
         return_value, frame = self.capture.read()
         frame = cv2.flip(frame, 1)
-        cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 0)
+        cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 2)
         roi = frame[100:400, 300:600]
         roi = draw_rect(roi)
         if return_value:
@@ -51,15 +56,30 @@ capture = None
 roi = None
 
 class HistCreationApp(BoxLayout):
+
+    lbl_generate = ObjectProperty(None)
+
     def init_histcreation(self):
         global capture
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
 
     def generate(self):
-    	global roi
+    	global roi, flag
     	hand_hist = hand_histogram(roi)
+        if flag == 0:
+            self.lbl_generate.text = "Re-take histogram"
+        else:
+            flag = 2
+        self.image()
     	print("Histogram generated!")
+
+    def image(self):
+        pop = Popup(title='Histogram capture confirmation',
+         content=Label(text='Histogram Captured!'),
+         size_hint=(None, None), 
+         size=(300, 100))
+        pop.open()
     	
     def load(self):
     	#Code to load saved histogram and store in hand_hist

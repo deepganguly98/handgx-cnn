@@ -25,6 +25,7 @@
 			font_size: root.button_font_size
 			background_normal: 'images/left.png'
 			background_color: (1, 1, 1, 0.5)
+			on_press: root.flip(0)
 		Button:
 			id: right_hand
 			text: 'Right      '
@@ -33,3 +34,4 @@
 			font_size: root.button_font_size
 			background_normal: 'images/right.png'
 			background_color: (1, 1, 1, 0.5)
+			on_press: root.flip(1)
