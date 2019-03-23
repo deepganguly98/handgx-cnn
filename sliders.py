@@ -194,7 +194,8 @@ class HslSliderApp(GridLayout):
         super(HslSliderApp, self).__init__(**kwargs)
         global flag
         flag = 0
-        Window.fullscreen = 'auto'
+        #Window.fullscreen = 'auto'
+        Window.size = (1300,750)
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
         self.ids.qrcam1.start1(capture)
@@ -229,41 +230,54 @@ class HslSliderApp(GridLayout):
         # Predicting the output
         global final_mask,model_text
         prediction, prob = self.predict_model(final_mask)
+        r=0
+        result=''
         if prob >= .80:
             if model == model_alpha:
                 if prediction[0] == 26:
                     model_text=self.model_switch(1)
-                    result='model switch'
-                if prediction[0] == 27:
+                    #model switch
+                    r=1
+                elif prediction[0] == 27:
                     model_text=self.model_switch(2)
-                    result = 'model switch'
+                    #model switch
+                    r=1
                 else:
-                    result = str(chr(prediction[0] + 65))
+                    if r==1:
+                        result = ''
+                        r=0
+                    else:
+                        result = str(chr(prediction[0] + 65))
                     # result = str(chr(result_map(str(prediction)) + 65))
-                    self.predicted_output.text = result
+                    self.predicted_output.text = result + "(prob=" + str(prob*100) + "%)"
                     self.model_used.text = model_text
                     print(prediction[0])
 
             if model == model_num:
                 if prediction[0] == 10:
                     model_text=self.model_switch(1)
-                    result = 'model switch'
-                if prediction[0] == 11:
+                    #model switch
+                    r=1
+                elif prediction[0] == 11:
                     model_text=self.model_switch(2)
-                    result = 'model switch'
+                    #model switch
+                    r=1
                 else:
-                    result = str(prediction[0])
-                    # result = str(result_map2(str(prediction)))
-                    self.predicted_output.text = result
+                    if r == 1:
+                        result = ''
+                        r=0
+                    else:
+                        result = str(prediction[0])
+                    self.predicted_output.text = result + "(prob=" + str(prob*100) + "%)"
                     self.model_used.text = model_text
-        self.sentence.text = self.sentence.text + result + "(prob=" + str(prob*100) + "%)"        
+            self.sentence.text = self.sentence.text + result
 
     def timer_to_predict(self, dt):
         global interval, timer_val
         if timer_val>0:
             timer_val= timer_val - 1
         else:
-            # self.predict()
+            self.predict()
             timer_val = interval
         
         if timer_val == 0:
