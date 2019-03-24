@@ -40,11 +40,11 @@ flag = 1
 timer_val = 3
 
 event = None
-model_alpha = load_model('model/extended_atoz_2.h5')
-model_num = load_model('model/extended_0to9_2.h5')
+# model_alpha = load_model('model/extended_atoz_2.h5')
+# model_num = load_model('model/extended_0to9_2.h5')
 
-model = model_alpha
-model_text = 'Alphabetic model'
+# model = model_alpha
+# model_text = 'Alphabetic model'
 class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):

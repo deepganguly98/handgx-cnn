@@ -59,10 +59,11 @@ class HistCreationApp(BoxLayout):
 
     lbl_generate = ObjectProperty(None)
 
-    def init_histcreation(self):
+    def __init__(self, **kwargs):
+        super(HistCreationApp, self).__init__(**kwargs)
         global capture
         capture = cv2.VideoCapture(0)
-        self.ids.qrcam.start(capture)
+        self.ids.qrcam1.start(capture)
 
     def generate(self):
     	global roi, flag

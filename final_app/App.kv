@@ -1,163 +1,84 @@
-##: kivy 1.10.1
-##: import FadeTransition kivy.uix.screenmanager.FadeTransition
-#
-#
-#ScreenManagement:
-#	transition: FadeTransition()
-#
-#	HomeScreen:
-#
-#	HistCreationScreen:
-#
-#	MainScreen:
-#
-#	OutputScreen:
-#
-#<HomeScreen>:
-#	name: 'home'
-#
-#<HistCreationScreen>:
-#	name: 'hist'
-#
-#<MainScreen>:
-#	name: 'main'
-#
-#<OutputScreen>:
-#	name: 'output'
-#
-## ======================================================================
-## 									READ
-## ======================================================================
-#
-## When a button is clicked use ->
-## app.root.current = 'name of screen'
-## to switch to a different screen
+#: kivy 1.10.1
+#: import FadeTransition kivy.uix.screenmanager.FadeTransition
+#: import BoxLayout kivy.uix.boxlayout.BoxLayout
 
-ManagerScreen:
-
-	# SplashScreen:
+ScreenManagement:
+	transition: FadeTransition()
 
 	HomeScreen:
 
-	HistScreen:
+	HistCreationScreen:
 
-	WorkScreen:
+	MainScreen:
 
-	EndScreen:
-
-# <SplashScreen>:
-# 	name: 'splash'
-# 	id: splash
+	OutputScreen:
 
 <HomeScreen>:
 	name: 'home'
-
-	GridLayout:
-		rows: 2
+	BoxLayout:
+		id : home_main
+		orientation: 'vertical'
+		padding: self.width*0.02 + self.height*0.02
+		canvas:
+			Rectangle:
+				source: "../images/texture7.jpg"
+				pos: self.pos
+				size: self.size
+		button_font_size: '35sp'
 		Label:
-			text: 'Choosing your preffered hand'
-		GridLayout:
-			cols: 2
+			text: 'Choose preferred hand orientation'
+			size_hint: (1,None)
+			font_size: '25sp'
+		BoxLayout:
+			orientation: 'horizontal'
+			size_hint: (1,None)
+			height: left_hand.height
+			spacing: '20sp'
 			Button:
-				text: 'Left Hand'
-				on_release:
-					# Code to flip frame and go to hist screen
-					root.manager.transition.direction = 'left'
-					app.root.current= 'hist'
-
+				id: left_hand
+				text: '      Left'
+				size_hint: (1,None)
+				height: self.texture_size[1] + (2*home_main.padding[1])
+				font_size: home_main.button_font_size
+				background_normal: '../images/left.png'
+				background_color: (1, 1, 1, 0.5)
+				on_press: root.flip(0)
 			Button:
-				text: 'Right Hand'
-				on_release:
-					root.manager.transition.direction = 'right'
-					app.root.current= 'hist'
+				id: right_hand
+				text: 'Right      '
+				size_hint: (1,None)
+				height: self.texture_size[1] + (2*home_main.padding[1])
+				font_size: home_main.button_font_size
+				background_normal: '../images/right.png'
+				background_color: (1, 1, 1, 0.5)
+				on_press: root.flip(1)
 
-<HistScreen>:
+<HistCreationScreen>:
 	name: 'hist'
-	GridLayout:
-		rows: 3
-		Label:
-			text: 'Please place your hand completely inside the green squares'
-		GridLayout:
-			cols: 2
-			GridLayout:
-				rows: 2
-				Button:
-					text: 'Capture'
-					#Call necessary function to save histogram
-				Button:
-					text: 'Load histogram'
-					#Call necessary function to load histogram
-			Label:
-				text: 'This area will contain the live feed with green rectangles drawn'
-		GridLayout:
-			cols: 2
-			Button:
-				text: 'Back'
-				on_release:
-					app.root.current= 'home'
-			Button:
-				# VERY IMPORTANT
-				# This button should only be activated
-				# once a histogram has either been captured or loaded
-				text: 'Next'
-				on_release:
-					app.root.current= 'work'
-<WorkScreen>:
-	name: 'work'
-	# 1. The live feed with contouring
-	# 2. The mask
-	# 3. Output window
-	# 4. DropDown for changing capture time interval
-	# 5. Button to generate the symbol table for reference
-	# 7. Label at bottom which shows the sentences as they are created
-	# 8. A small window or label which shows a-z, 0-9 or symbols which are being entered currently
-	# 9. Counter displaying the time to capture and resetting everytime a character has been captured
-	GridLayout:
-		rows: 4
-		GridLayout:
-			cols: 2
-			Label:
-				text: 'This area will contain the mask'
-			Label:
-				text: 'This area will contain the live feed with contouring'
-		GridLayout:
-			cols: 3
-			Label:
-				text: 'Class of character currently being enetered'
-			Label:
-				text: 'Output character'
-			GridLayout:
-				rows: 3
-				Label:
-					text: 'Dropdown for changing the capture time interval'
-				Label:
-					text: 'Down Counter, resets everytime a character is captured'
-				Label:
-					text: 'Small icon to open popup for reference symbol table'
-		Label:
-			text: 'This is a scrollable TEXTBOX which shows the sentences as they are formed. It is a texbox so that user can use keyboard for any correcting any errors in the statements before saving the file!'
-		GridLayout:
-			cols: 3
-			Button:
-				text: 'Back'
-			Button:
-				text: 'Pause capture'
-				#On click this text will change to "Resume Capture"
-			Button:
-				text: 'Done'
-				#(write necessary code to save file before moving on to next screen)
-				on_release:
-					app.root.current= 'end'
-<EndScreen>:
-	name: 'end'
-	GridLayout:
-		rows: 3
-		Button:
-			# Open recently saved file location
-			text: 'Show file'
-		Button:
-			# Replace with audio symbol
-			text: 'Play the audio'
-		Button:
-			# Quit from the program
-			text: 'QUIT'
+	BoxLayout:
+	id: hist_creation
+	    orientation: 'vertical'
+        canvas:
+            Rectangle:
+                source: "images/texture9.jpg"
+                pos: root.pos
+                size: root.size
+        padding: root.width*0.02, root.height*0.02
+        button_font_size: '25sp'
+
+        lbl_generate : generate
+
+
+<MainScreen>:
+	name: 'main'
+
+<OutputScreen>:
+	name: 'output'
+
+# ======================================================================
+# 									READ
+# ======================================================================
+
+# When a button is clicked use ->
+# app.root.current = 'name of screen'
+# to switch to a different screen
