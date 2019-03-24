@@ -40,11 +40,11 @@ flag = 1
 timer_val = 3
 
 event = None
-model_alpha = load_model('model/extended_atoz_2.h5')
-model_num = load_model('model/extended_0to9_2.h5')
+# model_alpha = load_model('model/extended_atoz_2.h5')
+# model_num = load_model('model/extended_0to9_2.h5')
 
-model = model_alpha
-model_text = 'Alphabetic model'
+# model = model_alpha
+# model_text = 'Alphabetic model'
 class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):
@@ -194,7 +194,7 @@ class HslSliderApp(GridLayout):
         super(HslSliderApp, self).__init__(**kwargs)
         global flag
         flag = 0
-        Window.fullscreen = 'auto'
+        # Window.fullscreen = 'auto'
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
         self.ids.qrcam1.start1(capture)
@@ -211,48 +211,48 @@ class HslSliderApp(GridLayout):
         return model_text
 
 
-    def predict_model(self,mask):
-        mask = cv2.merge((mask, mask, mask))
-        gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        img = cv2.resize(gray, (128, 128))
-        cv2.imshow('resized', img)
-        img = cv2.resize(gray, (64, 64))
-        img2 = img.reshape(1, 64, 64, 1)
-        prediction = model.predict_classes(img2)
-        predict_prob = model.predict(img2)
-        prob = predict_prob[0][np.argmax(predict_prob[0])]
-        print(predict_prob[0][np.argmax(predict_prob[0])])
+    # def predict_model(self,mask):
+    #     mask = cv2.merge((mask, mask, mask))
+    #     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    #     img = cv2.resize(gray, (128, 128))
+    #     cv2.imshow('resized', img)
+    #     img = cv2.resize(gray, (64, 64))
+    #     img2 = img.reshape(1, 64, 64, 1)
+    #     prediction = model.predict_classes(img2)
+    #     predict_prob = model.predict(img2)
+    #     prob = predict_prob[0][np.argmax(predict_prob[0])]
+    #     print(predict_prob[0][np.argmax(predict_prob[0])])
 
-        return prediction, prob
+    #     return prediction, prob
 
-    def predict(self):
-        # Predicting the output
-        global final_mask,model_text
-        prediction, prob = self.predict_model(final_mask)
-        if prob >= .80:
-            if model == model_alpha:
-                if prediction[0] == 26:
-                    model_text=self.model_switch(1)
-                if prediction[0] == 27:
-                    model_text=self.model_switch(2)
-                else:
-                    result = str(chr(prediction[0] + 65))
-                    # result = str(chr(result_map(str(prediction)) + 65))
-                    self.predicted_output.text = result
-                    self.model_used.text = model_text
-                    print(prediction[0])
+    # def predict(self):
+    #     # Predicting the output
+    #     global final_mask,model_text
+    #     prediction, prob = self.predict_model(final_mask)
+    #     if prob >= .80:
+    #         if model == model_alpha:
+    #             if prediction[0] == 26:
+    #                 model_text=self.model_switch(1)
+    #             if prediction[0] == 27:
+    #                 model_text=self.model_switch(2)
+    #             else:
+    #                 result = str(chr(prediction[0] + 65))
+    #                 # result = str(chr(result_map(str(prediction)) + 65))
+    #                 self.predicted_output.text = result
+    #                 self.model_used.text = model_text
+    #                 print(prediction[0])
 
-            if model == model_num:
-                if prediction[0] == 10:
-                    model_text=self.model_switch(1)
-                if prediction[0] == 11:
-                    model_text=self.model_switch(2)
-                else:
-                    result = str(prediction[0])
-                    # result = str(result_map2(str(prediction)))
-                    self.predicted_output.text = result
-                    self.model_used.text = model_text
-        self.sentence.text = self.sentence.text + result + "(prob=" + str(prob*100) + "%)"        
+    #         if model == model_num:
+    #             if prediction[0] == 10:
+    #                 model_text=self.model_switch(1)
+    #             if prediction[0] == 11:
+    #                 model_text=self.model_switch(2)
+    #             else:
+    #                 result = str(prediction[0])
+    #                 # result = str(result_map2(str(prediction)))
+    #                 self.predicted_output.text = result
+    #                 self.model_used.text = model_text
+    #     self.sentence.text = self.sentence.text + result + "(prob=" + str(prob*100) + "%)"        
 
     def timer_to_predict(self, dt):
         global interval, timer_val

@@ -9,10 +9,10 @@ from kivy.core.window import Window
 flip = 0
 #Variable to decide whether to flip the frame depending on hand-orientation chosen.
 
-class HomeScreen(BoxLayout):
+class HomeApp(BoxLayout):
 
 	def __init__(self, **kwargs):
-		super(HomeScreen, self).__init__(**kwargs)
+		super(HomeApp, self).__init__(**kwargs)
 
 	def flip(self, val):
 		global flip
@@ -23,15 +23,15 @@ class HomeScreen(BoxLayout):
 			flip = 0
 			#Do no flip frame
 
-class HomeApp(App):
+class HomeScreen(App):
 	def __init__(self, **kwargs):
-		super(HomeApp, self).__init__(**kwargs)
+		super(HomeScreen, self).__init__(**kwargs)
 		Window.size = (400, 200)
 	def build(self):
-		return HomeScreen()
+		return HomeApp()
 		
 kv = Builder.load_file("home.kv")
 
 if __name__ == '__main__':
-	app = HomeApp()
+	app = HomeScreen()
 	app.run()
