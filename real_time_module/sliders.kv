@@ -1,0 +1,334 @@
+#: kivy 1.10.1
+
+<HslSliderApp>:
+    canvas:
+        Rectangle:
+            source: 'images/texture2.jpg'
+            pos: self.pos
+            size: self.size
+    padding: root.width*0.005 + root.height*0.005
+    
+    pause_text : pause
+    slider_lbl : slider_lbl
+    timer_lbl : timer_lbl
+    thresh_lbl : thresh_lbl
+    predicted_output : predicted_output
+    sentence : sentence 
+    model_used : model_used
+
+    u_hue_lbl : u_hue_lbl 
+    u_sat_lbl : u_sat_lbl 
+    u_val_lbl : u_val_lbl 
+    l_hue_lbl : l_hue_lbl 
+    l_sat_lbl : l_sat_lbl 
+    l_val_lbl : l_val_lbl 
+
+    label_fonts_1 : '30sp'
+    label_fonts_2 : '25sp'
+    label_fonts_3 : '20sp'
+    label_fonts_4 : '16sp'
+	GridLayout:
+		rows: 4
+		size: root.size
+		padding: ['10sp','15sp']
+		spacing: ['10sp','30sp']
+		GridLayout:
+			cols: 4
+			GridLayout:
+				rows: 2
+				Label:
+					text: 'Live Feed'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+					font_size: root.label_fonts_3
+				KivyCamera:
+					size_hint: (None,None)
+					width: 300
+					height: 300
+					id: qrcam
+			GridLayout:
+				rows: 2
+				spacing: ['0sp','32sp']
+				Label:
+					text: 'Final mask to be Input to CNN'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+					font_size: root.label_fonts_3
+	        	KivyCamera:
+					size_hint: (None,None)
+					width: 230
+					height: 230
+					id: qrcam1
+			GridLayout:
+				rows:4	
+				Label:
+					text: 'UPPER HSL'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+					font_size: root.label_fonts_3
+					padding: ['10sp','0sp']
+				GridLayout:
+					cols: 3
+					Label:
+						text: 'Upper Hue:'
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.95, 0.39, 0.25,1)
+					Slider:
+						size_hint: (1, None)
+						id: u_hue 
+						min: 0
+						max: 255
+						step:1
+						value: 88
+						on_value: root.slider_change_u_hue(u_hue.value)
+					Label:
+						id: u_hue_lbl
+						text: '88'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
+				GridLayout:
+					cols: 3
+					Label:
+						text: 'Upper Saturation:'
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.25, 0.95, 0.73, 1)
+					Slider:
+						size_hint: (1, None)
+						id: u_saturation
+						min: 0
+						step:1
+						max: 255
+						value: 169
+						on_value: root.slider_change_u_saturation(u_saturation.value)
+					Label:
+						id: u_sat_lbl
+						text: '169'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
+				GridLayout:
+					cols: 3
+					Label:
+						text: 'Upper Value:'
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.76, 0.25, 0.95, 1)
+					Slider:
+						size_hint: (1, None)
+						id: u_value
+						min: 0
+						step:1
+						max: 255
+						value: 190
+						on_value: root.slider_change_u_value(u_value.value)
+					Label:
+						id: u_val_lbl
+						text: '190'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
+			GridLayout:
+				rows: 4
+				Label:
+					text: 'LOWER HSL'
+					size_hint: (1, None)
+					height: self.texture_size[1]
+					font_size: root.label_fonts_3
+				GridLayout:
+					cols: 3
+					Label:
+						text: 'Lower Hue:'
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.95, 0.39, 0.25,1)
+					Slider:
+						size_hint: (1, None)
+						id: l_hue
+						min: 0
+						step:1
+						max: 255
+						value: 0
+						on_value: root.slider_change_l_hue(l_hue.value)
+					Label:
+						id: l_hue_lbl
+						text: '0'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
+				GridLayout:
+					cols: 3
+					Label:
+						text: 'Lower Saturation:'
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.25, 0.95, 0.73, 1)
+					Slider:
+						size_hint: (1, None)
+						id: l_saturation
+						min: 0
+						step:1
+						max: 255
+						value: 54
+						on_value: root.slider_change_l_saturation(l_saturation.value)
+					Label:
+						id: l_sat_lbl
+						text: '54'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True
+				GridLayout:
+					cols: 3
+					Label:
+						text: 'Lower Value:'
+						font_size: root.label_fonts_4
+						italic: True
+						color: (0.76, 0.25, 0.95, 1)
+					Slider:
+						size_hint: (1,None)
+						id: l_value
+						min: 0
+						step:1
+						max: 255
+						value: 0
+						on_value : root.slider_change_l_value(l_value.value)
+					Label:
+						id: l_val_lbl
+						text: '0'
+						size_hint_x: None
+						width: self.texture_size[0] + root.padding[0]
+						color: (0.94, 0.95, 0.25, 1)
+						bold: True	
+		GridLayout:
+			cols: 4	
+			padding: ['0sp','10sp']
+			GridLayout:
+				rows: 2
+				padding: ['10sp','30sp']
+				orientation: 'vertical'
+				Label:
+					text: 'Timer:'
+					font_size: root.label_fonts_2
+					color: (0.250, 0.95, .90, 1)
+				Label:
+					id: timer_lbl
+					text: '3s'
+					size_hint: (1, None)
+					color: (0.65, 0.95, 0.35, 1)
+					height: self.texture_size[1]
+					font_size: '40sp'
+			GridLayout:
+				cols: 2
+				GridLayout:
+					rows: 2
+					padding: ['10sp','30sp']
+					Label:
+						text: 'Character class'
+						color: (0.95, 0.81, 0.25, 1)
+						font_size: root.label_fonts_2
+					Label:
+						id: model_used
+						text: 'Alphabetic model'
+						font_size: root.label_fonts_2
+						bold: True
+				GridLayout:
+					rows: 2
+					padding: ['0sp','30sp']	
+					Label:
+						text: 'Last prediction'
+						color: (0.95, 0.47, 0.25, 1)
+						font_size: root.label_fonts_2
+					Label:
+						id: predicted_output
+					    text:""
+					    bold: True
+					    font_size: root.label_fonts_1
+			GridLayout:
+				rows: 3
+				spacing: ['10sp','30sp']
+				GridLayout:
+					cols: 3
+					Label:
+						text: "Threshold value:"
+						size_hint: (1, None)
+						font_size: root.label_fonts_3
+					Slider:
+						id: thresh
+						min: 0
+						max: 255
+						step:1
+						cursor_width:'28sp'
+						value: 128
+						size_hint: (1, None)
+						on_value: root.thresh_change(thresh.value)
+					Label:
+						id: thresh_lbl
+						text: '128'
+						size_hint_x: None
+						width: self.texture_size[0]
+						color: (0.25, 0.95, 0.73, 1)
+						bold: True
+				GridLayout:
+					cols: 3
+					Label:
+						id: lbl_interval	
+						text: "Interval:"
+						font_size: root.label_fonts_3
+					Slider:
+						id: slider_interval
+						orientation: 'horizontal'
+						min: 1
+						max: 10
+						value: 3
+						cursor_width:'28sp'
+						step: 1
+						on_value: root.interval_change(slider_interval.value)
+					Label:
+						id: slider_lbl
+						text: '3s'
+						size_hint_x: None
+						width: self.texture_size[0]
+						color: (0.95, 0.25, 0.69, 1)
+						bold: True
+				BoxLayout:
+					size_hint: (0.5, None)
+					height: img.height
+					Button:
+						id: img
+						text: 'Reference image'
+						size_hint: (1, None)
+						height: self.texture_size[1] + (2*root.padding[1])
+						on_press: root.image()
+					Button:
+						size_hint: (1, None)
+						height: self.texture_size[1] + (2*root.padding[1])
+						text: "Load new histogram"	
+		TextInput:
+			id : sentence
+			font_size: '30sp'
+			height: '60sp'
+		BoxLayout:
+			orientation: 'horizontal'
+			size_hint: (1, None)
+			spacing: '10sp'
+			height: done.height
+			Button:
+				id: pause
+				text: "Start"
+				size_hint: (None, None)
+				width: '200sp'
+				height: self.texture_size[1] + (2*root.padding[1])
+				on_press: root.pause_resume()
+			Button:
+				id: done
+				text: "Done"
+				size_hint: (None, None)
+				width: '200sp'
+				height: self.texture_size[1] + (2*root.padding[1])
