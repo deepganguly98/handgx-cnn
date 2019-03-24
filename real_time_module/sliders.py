@@ -202,6 +202,7 @@ class HslSliderApp(GridLayout):
 
     def model_switch(self, x):
         global model,model_text
+        print('inside model_switch')
         if x == 1:
             model = model_num
             model_text= "Numeric Model"
@@ -209,6 +210,7 @@ class HslSliderApp(GridLayout):
         if x == 2:
             model = model_alpha
             model_text ="Alphabetic model"
+            print('Modle shifted')
         return model_text
 
 
@@ -259,7 +261,9 @@ class HslSliderApp(GridLayout):
                     #model switch
                     r=1
                 elif prediction[0] == 11:
+                    print('model switch selected and called')
                     model_text=self.model_switch(2)
+                    print('outside model switch')
                     #model switch
                     r=1
                 else:
