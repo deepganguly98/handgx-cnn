@@ -20,6 +20,8 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.dropdown import DropDown
 from keras.models import load_model
+from kivy.uix.checkbox import CheckBox
+import pyttsx
 
 u_hue = 104
 u_saturation = 135
@@ -28,6 +30,8 @@ l_hue = 0
 l_saturation = 0
 l_value = 15
 t = 128
+
+check = True
 
 interval = 3
 #From slider 
@@ -40,11 +44,11 @@ flag = 1
 timer_val = 3
 
 event = None
-# model_alpha = load_model('model/extended_atoz_2.h5')
-# model_num = load_model('model/extended_0to9_2.h5')
+model_alpha = load_model('../model/extended_atoz_2.h5')
+model_num = load_model('../model/extended_0to9_2.h5')
 
-# model = model_alpha
-# model_text = 'Alphabetic model'
+model = model_alpha
+model_text = 'Alphabetic model'
 class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):
@@ -84,7 +88,7 @@ class KivyCamera(Image):
             cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
             roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
             hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-            with open("histogram/hist_home2", "rb") as f:
+            with open("../histogram/hist_home2", "rb") as f:
                 hist = pickle.load(f)
 
             dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
@@ -175,6 +179,7 @@ capture = None
 roi = None
 
 class HslSliderApp(GridLayout):
+
     pause_text = ObjectProperty(None)
     slider_lbl = ObjectProperty(None)
     timer_lbl = ObjectProperty(None)
@@ -182,6 +187,7 @@ class HslSliderApp(GridLayout):
     model_used = ObjectProperty(None)
     thresh_lbl = ObjectProperty(None)
     sentence = ObjectProperty(None)
+    sent_check = ObjectProperty(None)
 
     u_hue_lbl = ObjectProperty(None)
     u_sat_lbl = ObjectProperty(None)
@@ -194,8 +200,7 @@ class HslSliderApp(GridLayout):
         super(HslSliderApp, self).__init__(**kwargs)
         global flag
         flag = 0
-        #Window.fullscreen = 'auto'
-        Window.size = (1300,750)
+        Window.size = (1350,620)
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
         self.ids.qrcam1.start1(capture)
@@ -206,13 +211,12 @@ class HslSliderApp(GridLayout):
         if x == 1:
             model = model_num
             model_text= "Numeric Model"
-
+        
         if x == 2:
             model = model_alpha
             model_text ="Alphabetic model"
             print('Modle shifted')
         return model_text
-
 
     def predict_model(self,mask):
         mask = cv2.merge((mask, mask, mask))
@@ -251,7 +255,7 @@ class HslSliderApp(GridLayout):
                     else:
                         result = str(chr(prediction[0] + 65))
                     # result = str(chr(result_map(str(prediction)) + 65))
-                    self.predicted_output.text = result + "(prob=" + str(prob*100) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
                     self.model_used.text = model_text
                     print(prediction[0])
 
@@ -272,24 +276,28 @@ class HslSliderApp(GridLayout):
                         r=0
                     else:
                         result = str(prediction[0])
-                    self.predicted_output.text = result + "(prob=" + str(prob*100) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
                     self.model_used.text = model_text
-            self.sentence.text = self.sentence.text + result
+            return result
 
     def timer_to_predict(self, dt):
-        global interval, timer_val
+        global interval, timer_val, check
         if timer_val>0:
+            self.predict()
             timer_val= timer_val - 1
+            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
         else:
             self.predict()
             timer_val = interval
-        
-        if timer_val == 0:
+            result = self.predict()
+            if result == None:
+                result = ''
+            print(check)
+            if check == True:
+                self.sentence.text = self.sentence.text + result
             self.timer_lbl.color = (1, 0, 0, 1)
-        else:
-            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
 
-        self.timer_lbl.text = str(timer_val) + ' s' 
+        self.timer_lbl.text = str(timer_val) + ' s'
 
     def pause_resume(self):
         global flag,event
@@ -351,6 +359,18 @@ class HslSliderApp(GridLayout):
         pop = Popup(title='Hand Signs Reference Chart', content=Image(source='images/texture3.jpg'),
                     size_hint=(None, None), size=(1000, 800))
         pop.open()
+
+    def speak(self):
+        engine = pyttsx.init()
+        rate = engine.getProperty('rate')
+        engine.setProperty('rate', rate-15)
+        if self.sentence.text != '':
+            engine.say(self.sentence.text)
+        engine.runAndWait()
+
+    def check(self, val):
+        global check
+        check = val
 
 class SliderApp(App):
 	def build(self):

@@ -3,7 +3,7 @@
 <HslSliderApp>:
     canvas:
         Rectangle:
-            source: 'images/texture2.jpg'
+            source: '../images/texture2.jpg'
             pos: self.pos
             size: self.size
     padding: root.width*0.005 + root.height*0.005
@@ -15,6 +15,7 @@
     predicted_output : predicted_output
     sentence : sentence 
     model_used : model_used
+    sent_check : sent_check
 
     u_hue_lbl : u_hue_lbl 
     u_sat_lbl : u_sat_lbl 
@@ -26,7 +27,9 @@
     label_fonts_1 : '30sp'
     label_fonts_2 : '25sp'
     label_fonts_3 : '20sp'
-    label_fonts_4 : '16sp'
+    label_fonts_4 : '18sp'
+    label_fonts_5 : '16sp'
+
 	GridLayout:
 		rows: 4
 		size: root.size
@@ -71,7 +74,7 @@
 					cols: 3
 					Label:
 						text: 'Upper Hue:'
-						font_size: root.label_fonts_4
+						font_size: root.label_fonts_3
 						italic: True
 						color: (0.95, 0.39, 0.25,1)
 					Slider:
@@ -93,7 +96,7 @@
 					cols: 3
 					Label:
 						text: 'Upper Saturation:'
-						font_size: root.label_fonts_4
+						font_size: root.label_fonts_3
 						italic: True
 						color: (0.25, 0.95, 0.73, 1)
 					Slider:
@@ -115,9 +118,9 @@
 					cols: 3
 					Label:
 						text: 'Upper Value:'
-						font_size: root.label_fonts_4
+						font_size: root.label_fonts_3
 						italic: True
-						color: (0.76, 0.25, 0.95, 1)
+						color: (0.95, 0.25, 0.54, 1)
 					Slider:
 						size_hint: (1, None)
 						id: u_value
@@ -144,7 +147,7 @@
 					cols: 3
 					Label:
 						text: 'Lower Hue:'
-						font_size: root.label_fonts_4
+						font_size: root.label_fonts_3
 						italic: True
 						color: (0.95, 0.39, 0.25,1)
 					Slider:
@@ -166,7 +169,7 @@
 					cols: 3
 					Label:
 						text: 'Lower Saturation:'
-						font_size: root.label_fonts_4
+						font_size: root.label_fonts_3
 						italic: True
 						color: (0.25, 0.95, 0.73, 1)
 					Slider:
@@ -188,9 +191,9 @@
 					cols: 3
 					Label:
 						text: 'Lower Value:'
-						font_size: root.label_fonts_4
+						font_size: root.label_fonts_3
 						italic: True
-						color: (0.76, 0.25, 0.95, 1)
+						color: (0.95, 0.25, 0.54, 1)
 					Slider:
 						size_hint: (1,None)
 						id: l_value
@@ -232,12 +235,12 @@
 					Label:
 						text: 'Character class'
 						color: (0.95, 0.81, 0.25, 1)
-						font_size: root.label_fonts_2
+						font_size: root.label_fonts_3
 					Label:
 						id: model_used
 						text: 'Alphabetic model'
-						font_size: root.label_fonts_2
-						bold: True
+						font_size: root.label_fonts_3
+
 				GridLayout:
 					rows: 2
 					padding: ['0sp','30sp']	
@@ -312,8 +315,13 @@
 						text: "Load new histogram"	
 		TextInput:
 			id : sentence
-			font_size: '30sp'
+			font_size: '20sp'
+			size_hint_y: None
 			height: '60sp'
+			scroll_y: 1
+			scroll_x: 1
+			multiline: True
+
 		BoxLayout:
 			orientation: 'horizontal'
 			size_hint: (1, None)
@@ -332,3 +340,27 @@
 				size_hint: (None, None)
 				width: '200sp'
 				height: self.texture_size[1] + (2*root.padding[1])
+			Button:
+				id: say_this
+				text: 'Say This'
+				size_hint: (None, None)
+				width: '200sp'
+				height: self.texture_size[1] + (2*root.padding[1])
+				on_press: root.speak()
+			Button:
+				id: exit
+				text: 'Save file'
+				size_hint: (None, None)
+				width: '200sp'
+				height: self.texture_size[1] + (2*root.padding[1])
+			BoxLayout:
+				orientation: 'horizontal'
+				Label:
+					text: 'Add prediction to sentence:'
+					font_size: root.label_fonts_3
+					bold: True
+					color: (0.25, 0.59, 0.95, 1)
+				CheckBox:
+					id: sent_check
+					active: True
+					on_active: root.check(sent_check.active)
