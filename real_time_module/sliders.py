@@ -50,6 +50,7 @@ model_sym = load_model('../model/extended_0to9_2.h5')
 
 model = model_alpha
 model_text = 'Alphabetic model'
+
 class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):
@@ -334,17 +335,17 @@ class HslSliderApp(GridLayout):
         if timer_val>0:
             self.predict()
             timer_val= timer_val - 1
-            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
+            if timer_val==0:
+                self.timer_lbl.color = (1, 0, 0, 1)
         else:
+            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
             self.predict()
             timer_val = interval
             result = self.predict()
             if result == None:
                 result = ''
-            print(check)
             if check == True:
                 self.sentence.text = self.sentence.text + result
-            self.timer_lbl.color = (1, 0, 0, 1)
 
         self.timer_lbl.text = str(timer_val) + ' s'
 

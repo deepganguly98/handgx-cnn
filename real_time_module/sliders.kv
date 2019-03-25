@@ -326,7 +326,7 @@
 			orientation: 'horizontal'
 			size_hint: (1, None)
 			spacing: '10sp'
-			height: done.height
+			height: pause.height
 			Button:
 				id: pause
 				text: "Start"
@@ -334,12 +334,6 @@
 				width: '200sp'
 				height: self.texture_size[1] + (2*root.padding[1])
 				on_press: root.pause_resume()
-			Button:
-				id: done
-				text: "Done"
-				size_hint: (None, None)
-				width: '200sp'
-				height: self.texture_size[1] + (2*root.padding[1])
 			Button:
 				id: say_this
 				text: 'Say This'
@@ -356,7 +350,7 @@
 			BoxLayout:
 				orientation: 'horizontal'
 				Label:
-					text: 'Add prediction to sentence:'
+					text: 'Add predicted to sentence:'
 					font_size: root.label_fonts_3
 					bold: True
 					color: (0.25, 0.59, 0.95, 1)
