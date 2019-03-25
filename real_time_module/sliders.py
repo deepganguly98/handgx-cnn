@@ -276,12 +276,12 @@ class HslSliderApp(GridLayout):
                         r=0
                     else:
                         result = str(prediction[0])
-                    self.predicted_output.text = result + "(prob=" + str(prob*100) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
                     self.model_used.text = model_text
             return result
 
     def timer_to_predict(self, dt):
-        global interval, timer_val
+        global interval, timer_val, check
         if timer_val>0:
             self.predict()
             timer_val= timer_val - 1
@@ -292,7 +292,9 @@ class HslSliderApp(GridLayout):
             result = self.predict()
             if result == None:
                 result = ''
-            self.sentence.text = self.sentence.text + result
+            print(check)
+            if check == True:
+                self.sentence.text = self.sentence.text + result
             self.timer_lbl.color = (1, 0, 0, 1)
 
         self.timer_lbl.text = str(timer_val) + ' s'
