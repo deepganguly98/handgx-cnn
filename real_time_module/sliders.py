@@ -46,9 +46,11 @@ timer_val = 3
 event = None
 model_alpha = load_model('../model/extended_atoz_2.h5')
 model_num = load_model('../model/extended_0to9_2.h5')
+model_sym = load_model('../model/extended_0to9_2.h5')
 
 model = model_alpha
 model_text = 'Alphabetic model'
+
 class KivyCamera(Image):
     #init function to initialize the capture variable
     def __init__(self, **kwargs):
@@ -211,12 +213,43 @@ class HslSliderApp(GridLayout):
         if x == 1:
             model = model_num
             model_text= "Numeric Model"
+            print('Model shifted')
         
         if x == 2:
             model = model_alpha
             model_text ="Alphabetic model"
-            print('Modle shifted')
+            print('Model shifted')
+
+        if x==3:
+            model = model_sym
+            model_text = "Symbol model"
+            print('Model shifted')
+
         return model_text
+
+    def result_map(self,x):
+        ans=''
+        if x == 2:
+            ans = ' ' #space
+        elif x == 3:
+            ans = '.' #period
+        elif x == 4:
+            ans = ',' #comma
+        elif x == 5:
+            ans = chr(8)
+        elif x == 6:
+            ans  = '?'
+        elif x == 7:
+            ans = '!'
+        elif x == 8:
+            ans = '+'
+        elif x == 9:
+            ans = '-'
+        elif x == 10:
+            ans = '*'
+        elif x == 11:
+            ans = '/'
+        return str(ans)
 
     def predict_model(self,mask):
         mask = cv2.merge((mask, mask, mask))
@@ -245,7 +278,7 @@ class HslSliderApp(GridLayout):
                     #model switch
                     r=1
                 elif prediction[0] == 27:
-                    model_text=self.model_switch(2)
+                    model_text=self.model_switch(3)
                     #model switch
                     r=1
                 else:
@@ -261,7 +294,7 @@ class HslSliderApp(GridLayout):
 
             if model == model_num:
                 if prediction[0] == 10:
-                    model_text=self.model_switch(1)
+                    model_text=self.model_switch(3)
                     #model switch
                     r=1
                 elif prediction[0] == 11:
@@ -278,6 +311,23 @@ class HslSliderApp(GridLayout):
                         result = str(prediction[0])
                     self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
                     self.model_used.text = model_text
+
+            if model == model_sym:
+                if prediction[0] == 0:
+                    model_text = self.model_switch(1)
+                    r=1
+                elif prediction[0] == 1:
+                    model_text = self.model_switch(2)
+                    r=1
+                else:
+                    if r==1:
+                        result=''
+                        r=0
+                    else:
+                        result = self.result_map(str(chr(prediction[0])))
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+                    self.model_used.text = model_text
+
             return result
 
     def timer_to_predict(self, dt):
@@ -285,17 +335,17 @@ class HslSliderApp(GridLayout):
         if timer_val>0:
             self.predict()
             timer_val= timer_val - 1
-            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
+            if timer_val==0:
+                self.timer_lbl.color = (1, 0, 0, 1)
         else:
+            self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
             self.predict()
             timer_val = interval
             result = self.predict()
             if result == None:
                 result = ''
-            print(check)
             if check == True:
                 self.sentence.text = self.sentence.text + result
-            self.timer_lbl.color = (1, 0, 0, 1)
 
         self.timer_lbl.text = str(timer_val) + ' s'
 
