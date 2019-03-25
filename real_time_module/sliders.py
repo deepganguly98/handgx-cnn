@@ -324,7 +324,7 @@ class HslSliderApp(GridLayout):
                         result=''
                         r=0
                     else:
-                        result = self.result_map(str(chr(prediction[0])))
+                        result = self.result_map(prediction[0])
                     self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
 
