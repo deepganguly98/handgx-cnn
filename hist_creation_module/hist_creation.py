@@ -63,7 +63,7 @@ class HistCreationApp(BoxLayout):
 
     def generate(self):
         global roi
-        hand_hist = self.hand_histogram(roi)
+        hand_hist = hand_histogram(roi)
         print("Histogram generated!")
 
     def load(self):
