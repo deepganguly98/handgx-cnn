@@ -201,6 +201,7 @@ def main():
                         model_switch(1)
                     if prediction[0] == 11:
                         model_switch(2)
+
                     else:
                         result = str(prediction[0])
                         #result = str(result_map2(str(prediction)))
