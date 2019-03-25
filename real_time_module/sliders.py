@@ -20,6 +20,8 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.dropdown import DropDown
 from keras.models import load_model
+from kivy.uix.checkbox import CheckBox
+import pyttsx
 
 u_hue = 104
 u_saturation = 135
@@ -28,6 +30,8 @@ l_hue = 0
 l_saturation = 0
 l_value = 15
 t = 128
+
+check = True
 
 interval = 3
 #From slider 
@@ -175,6 +179,7 @@ capture = None
 roi = None
 
 class HslSliderApp(GridLayout):
+
     pause_text = ObjectProperty(None)
     slider_lbl = ObjectProperty(None)
     timer_lbl = ObjectProperty(None)
@@ -182,6 +187,7 @@ class HslSliderApp(GridLayout):
     model_used = ObjectProperty(None)
     thresh_lbl = ObjectProperty(None)
     sentence = ObjectProperty(None)
+    sent_check = ObjectProperty(None)
 
     u_hue_lbl = ObjectProperty(None)
     u_sat_lbl = ObjectProperty(None)
@@ -194,8 +200,7 @@ class HslSliderApp(GridLayout):
         super(HslSliderApp, self).__init__(**kwargs)
         global flag
         flag = 0
-        #Window.fullscreen = 'auto'
-        Window.size = (1300,750)
+        Window.size = (1350,620)
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
         self.ids.qrcam1.start1(capture)
@@ -212,7 +217,6 @@ class HslSliderApp(GridLayout):
             model_text ="Alphabetic model"
             print('Modle shifted')
         return model_text
-
 
     def predict_model(self,mask):
         mask = cv2.merge((mask, mask, mask))
@@ -353,6 +357,18 @@ class HslSliderApp(GridLayout):
         pop = Popup(title='Hand Signs Reference Chart', content=Image(source='images/texture3.jpg'),
                     size_hint=(None, None), size=(1000, 800))
         pop.open()
+
+    def speak(self):
+        engine = pyttsx.init()
+        rate = engine.getProperty('rate')
+        engine.setProperty('rate', rate-15)
+        if self.sentence.text != '':
+            engine.say(self.sentence.text)
+        engine.runAndWait()
+
+    def check(self, val):
+        global check
+        check = val
 
 class SliderApp(App):
 	def build(self):
