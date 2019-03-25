@@ -286,6 +286,8 @@ class HslSliderApp(GridLayout):
             self.predict()
             timer_val = interval
             result = self.predict()
+            if result == None:
+                result = ''
             self.sentence.text = self.sentence.text + result
             self.timer_lbl.color = (1, 0, 0, 1)
 
