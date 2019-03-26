@@ -17,6 +17,14 @@ from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
+import pickle
+from kivy.app import App
+from kivy.uix.floatlayout import FloatLayout
+from kivy.factory import Factory
+from kivy.properties import ObjectProperty
+from kivy.uix.popup import Popup
+
+import os
 
 flip = 0
 
@@ -54,10 +62,56 @@ class KivyCamera(Image):
 # variable to hold the live video frames
 capture = None
 roi = None
+hand_hist = None
 
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
+
+
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
 class HistCreationApp(BoxLayout):
     orient = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
+    savefile = ObjectProperty(None)
+
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def show_load(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def show_save(self):
+        content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Save file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load(self, path, filename):
+
+        with open(os.path.join(path, filename[0]), "rb") as f:
+            hist = pickle.load(f)
+        #with open(os.path.join(path, filename[0])) as stream:
+        #    hist = stream.read()
+        print(hist)
+        self.dismiss_popup()
+
+    def save(self, path, filename):
+
+        with open(os.path.join(path, filename), "wb") as f:
+            pickle.dump(hand_hist, f)
+
+        #with open(os.path.join(path, filename), 'w') as stream:
+        #    stream.write(self.text_input.text)
+
+        self.dismiss_popup()
 
     def __init__(self, **kwargs):
         super(HistCreationApp, self).__init__(**kwargs)
@@ -69,13 +123,11 @@ class HistCreationApp(BoxLayout):
         self.ids.qrcam.start(capture)
 
     def generate(self):
-        global roi
+        global roi, hand_hist
         hand_hist = hand_histogram(roi)
         print("Histogram generated!")
-
-    def load(self):
-        # Code to load saved histogram and store in hand_hist
-        pass
+        print(hand_hist)
+        self.show_save()
 
     def accept(self):
         pass
