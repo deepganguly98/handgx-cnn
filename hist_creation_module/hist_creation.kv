@@ -4,48 +4,95 @@
 	orientation: 'vertical'
 	canvas:
 		Rectangle:
-			source: "../images/texture9.jpg"
+			source: "../images/texture7.jpg"
 			pos: root.pos
 			size: root.size
 	padding: root.width*0.02, root.height*0.02
 	button_font_size: '25sp'
 
     lbl_generate : generate
+    orient : orient
 
-	Label:
-		text: "Place you hand on the squares inside the green box"
-		size_hint: (1,None)
-		height: self.texture_size[1]
-		font_size: '30sp'
-	BoxLayout:
-        orientation: "vertical"
+    BoxLayout:
+        orientation: 'vertical'
         BoxLayout:
-            orientation:"vertical"
-            height: 50
-            KivyCamera:
-                id: qrcam1
+            orientation: 'horizontal'
+            BoxLayout:
+                orientation: 'vertical'    
+            	Label:
+            		text: "Place you hand on the squares inside the green box"
+            		size_hint: (1,None)
+            		height: self.texture_size[1]
+            		font_size: '30sp'
+                    bold: True
+                BoxLayout:
+                    orientation:"vertical"
+                    height: 50
+                    KivyCamera:
+                        id: qrcam1
+            BoxLayout:
+                orientation: 'vertical'
+                padding: ['0sp','40sp']
+                Label:
+                    text: 'Choose preferred hand orientation'
+                    size_hint: (1,None)
+                    font_size: '30sp'
+                    italic: True 
+                BoxLayout:
+                    orientation: 'horizontal'
+                    padding: ['10sp','20sp']
+                    spacing: '20sp'
+                    Button:
+                        id: left_hand
+                        text: '      Left'
+                        size_hint: (1,None)
+                        height: self.texture_size[1] + (2*root.padding[1])
+                        font_size: root.button_font_size
+                        background_normal: '../images/left.png'
+                        background_color: (1, 1, 1, 0.8)
+                        on_press: root.flip(0)
+                    Button:
+                        id: right_hand
+                        text: 'Right      '
+                        size_hint: (1,None)
+                        height: self.texture_size[1] + (2*root.padding[1])
+                        font_size: root.button_font_size
+                        background_normal: '../images/right.png'
+                        background_color: (1, 1, 1, 0.8)
+                        on_press: root.flip(1)
+                Label:
+                    text: 'Hand orientation chosen:'
+                    font_size: '30sp'
+                    bold: True
+                    color: ( 0.95, 0.89, 0.25, 1)
+                Label:
+                    id: orient
+                    text: 'Right'
+                    font_size: '50sp'
+                    bold: True
+                    color: ( 0.25, 0.46, 0.95, 1)
         BoxLayout:
-    		orientation: 'horizontal'
-    		size_hint: (1,None)
-    		height: generate.height 
-    		Button:
-    			id: generate
-    			text: 'Generate histogram'
-    			font_size: root.button_font_size
-    			size_hint: (1,None)
-    			height: self.texture_size[1] + (2*root.padding[1])
-    			on_press: root.generate()
-    		Button:
-    			id: load
-    			text: 'Load Histogram'
-    			font_size: root.button_font_size
-    			size_hint: (1,None)
-    			height: self.texture_size[1] + (2*root.padding[1])
-    			on_press: root.load()
-    		Button:
-    			id: accept
-    			text: 'Accept'
-    			font_size: root.button_font_size
-    			size_hint: (1,None)
-    			height: self.texture_size[1] + (2*root.padding[1])
-    			on_press: root.accept()
+            orientation: 'horizontal'
+            size_hint: (1,None)
+            height: generate.height 
+            Button:
+                id: generate
+                text: 'Generate histogram'
+                font_size: root.button_font_size
+                size_hint: (1,None)
+                height: self.texture_size[1] + (2*root.padding[1])
+                on_press: root.generate()
+            Button:
+                id: load
+                text: 'Load Histogram'
+                font_size: root.button_font_size
+                size_hint: (1,None)
+                height: self.texture_size[1] + (2*root.padding[1])
+                on_press: root.load()
+            Button:
+                id: accept
+                text: 'Accept'
+                font_size: root.button_font_size
+                size_hint: (1,None)
+                height: self.texture_size[1] + (2*root.padding[1])
+                on_press: root.accept()

@@ -16,7 +16,9 @@ from kivy.base import EventLoop
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
+from kivy.properties import ObjectProperty
 
+flip = 0
 
 class KivyCamera(Image):
 
@@ -49,14 +51,19 @@ class KivyCamera(Image):
             texture.blit_buffer(frame.tobytes(), colorfmt='bgr')
             self.canvas.ask_update()
 
-
 # variable to hold the live video frames
 capture = None
 roi = None
 
 
 class HistCreationApp(BoxLayout):
-    def init_histcreation(self):
+    orient = ObjectProperty(None)
+
+    def __init__(self, **kwargs):
+        super(HistCreationApp, self).__init__(**kwargs)
+        Window.size = (1350,620)
+
+    def build(self):
         global capture
         capture = cv2.VideoCapture(0)
         self.ids.qrcam.start(capture)
@@ -73,6 +80,18 @@ class HistCreationApp(BoxLayout):
     def accept(self):
         pass
 
+    def flip(self, val):
+        global flip
+        if val == 0:
+            flip = 1
+            #Flip frame
+            self.orient.text = 'Left'
+            self.orient.color = ( 0.45, 0.95, 0.25, 1)
+        else:
+            flip = 0
+            self.orient.text = 'Right'
+            self.orient.color = ( 0.24, 0.64, 0.93, 1)
+            #Do no flip frame    
 
 class HistApp(App):
     def build(self):

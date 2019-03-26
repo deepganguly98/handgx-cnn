@@ -177,7 +177,7 @@ class KivyCamera(Image):
             self.canvas.ask_update()
 
 #variable to hold the live video frames
-capture = None
+# capture = None
 roi = None
 
 class HslSliderApp(GridLayout):
