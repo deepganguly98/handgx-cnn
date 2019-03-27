@@ -7,6 +7,7 @@ import cv2
 import pyttsx
 import imutils
 import pickle
+import os
 
 from create_histogram import *
 
@@ -29,6 +30,8 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
+from kivy.factory import Factory
+from kivy.uix.floatlayout import FloatLayout
 
 # _________________
 # GLOBAL VARIABLES
@@ -66,6 +69,7 @@ event = None
 # variable to hold the live video frames
 capture = None
 roi = None
+hand_hist = None
 
 model_alpha = load_model('../model/extended_atoz_2.h5')
 model_num = load_model('../model/extended_0to9_2.h5')
@@ -243,28 +247,73 @@ class KivyCamera2(Image):
             texture.blit_buffer(frame.tobytes(), colorfmt='luminance')
             self.canvas.ask_update()
 
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
+
+
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
 class HistCreationScreen(Screen):
     orient = ObjectProperty(None)
     hist_main = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
+    savefile = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
 
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def show_load(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def show_save(self):
+        content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Save file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load(self, path, filename):
+
+        with open(os.path.join(path, filename[0]), "rb") as f:
+            hist = pickle.load(f)
+        # with open(os.path.join(path, filename[0])) as stream:
+        #    hist = stream.read()
+        print(hist)
+        self.dismiss_popup()
+
+    def save(self, path, filename):
+
+        with open(os.path.join(path, filename), "wb") as f:
+            pickle.dump(hand_hist, f)
+
+        # with open(os.path.join(path, filename), 'w') as stream:
+        #    stream.write(self.text_input.text)
+
+        self.dismiss_popup()
 
     # def build(self):
     #     # global capture
     #     # capture = cv2.VideoCapture(0)
 
     def generate(self):
-        global roi
+        global roi,hand_hist
         hand_hist = hand_histogram(roi)
         print("Histogram generated!")
 
     def load(self):
         # Code to load saved histogram and store in hand_hist
-        pass
+        print(hand_hist)
+        self.show_save()
 
     def flip(self, val):
         global flip
