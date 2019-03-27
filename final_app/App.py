@@ -52,7 +52,7 @@ t = 128
 check = True
 
 interval = 3
-#From slider 
+# From slider
 
 final_mask = None
 # To be passed to predict function
@@ -63,7 +63,7 @@ timer_val = 3
 
 event = None
 
-#variable to hold the live video frames
+# variable to hold the live video frames
 capture = None
 roi = None
 
@@ -74,16 +74,18 @@ model_sym = load_model('../model/extended_0to9_2.h5')
 model = model_alpha
 model_text = 'Alphabetic model'
 
+
 class KivyCamera(Image):
 
-    #init function to initialize the capture variable
+    # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
         global capture
         capture = cv2.VideoCapture(0)
         self.start(capture)
+
     # start function for the first color video to to copy capture from the cv2 module and refresh it at regular intervals using 'update' function
-    
+
     def start(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
@@ -111,24 +113,25 @@ class KivyCamera(Image):
             texture.blit_buffer(frame.tobytes(), colorfmt='bgr')
             self.canvas.ask_update()
 
+
 class KivyCamera2(Image):
-    #init function to initialize the capture variable
+    # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera2, self).__init__(**kwargs)
-        global capture
-        capture = cv2.VideoCapture(0)
         self.capture = None
+        # capture = cv2.VideoCapture(0)
+        # self.start(capture)
 
     def start(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
 
-    def start(self, capture, fps=30):
+    def start1(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update1, 1.0 / fps)
 
     def manage_image_opr(self, frame):
-        global u_hue,u_saturation,u_value,l_hue,l_saturation,l_value, t
+        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
         roi = frame[100:400, 300:600]
 
         cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 3)
@@ -171,7 +174,7 @@ class KivyCamera2(Image):
             return mask
         except:
             pass
-            t=128
+            t = 128
             mask = np.zeros((128, 128), np.uint8)
             return mask
 
@@ -203,8 +206,10 @@ class KivyCamera2(Image):
             t = 128
 
     def update(self, dt):
-        global roi
-        return_value, frame = self.capture.read()
+        global roi, capture
+        return_value, frame = capture.read()
+        if capture == None:
+            print('none')
         frame = cv2.flip(frame, 1)
 
         self.trackpalm(frame)
@@ -220,8 +225,8 @@ class KivyCamera2(Image):
             self.canvas.ask_update()
 
     def update1(self, dt):
-        global roi, final_mask
-        return_value, frame = self.capture.read()
+        global roi, final_mask, capture
+        return_value, frame = capture.read()
         frame = cv2.flip(frame, 1)
         roi = frame[100:400, 300:600]
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
@@ -240,13 +245,13 @@ class KivyCamera2(Image):
 
 
 class HistCreationScreen(Screen):
-
     orient = ObjectProperty(None)
     hist_main = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(HistCreationScreen, self).__init__(**kwargs)
-        Window.size = (1350,620)
+        Window.size = (1350, 620)
+
 
     # def build(self):
     #     # global capture
@@ -263,22 +268,23 @@ class HistCreationScreen(Screen):
 
     def flip(self, val):
         global flip
-        
+
         if val == 0:
             flip = 1
-            #Flip frame
+            # Flip frame
             self.orient.text = 'Left'
-            self.orient.color = ( 0.45, 0.95, 0.25, 1)
-        
+            self.orient.color = (0.45, 0.95, 0.25, 1)
+
         else:
             flip = 0
             self.orient.text = 'Right'
-            self.orient.color = ( 0.24, 0.64, 0.93, 1)
-            #Do no flip frame    
+            self.orient.color = (0.24, 0.64, 0.93, 1)
+            # Do no flip frame
 
     def accept(self):
         self.qrcam.stop()
         self.manager.current = 'main'
+
 
 class MainScreen(Screen):
     pause_text = ObjectProperty(None)
@@ -305,45 +311,46 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         global flag
         flag = 0
+        print('called')
 
-    def build(self):
-        global capture
+    def on_start(self):
+        print('called')
         capture = cv2.VideoCapture(0)
         self.qrcam2_1.start(capture)
-        self.qrcam2_2.start(capture)
+        self.qrcam2_2.start1(capture)
 
     def model_switch(self, x):
-        global model,model_text
+        global model, model_text
         print('inside model_switch')
         if x == 1:
             model = model_num
-            model_text= "Numeric Model"
-            print('Model shifted')
-        
-        if x == 2:
-            model = model_alpha
-            model_text ="Alphabetic model"
+            model_text = "Numeric Model"
             print('Model shifted')
 
-        if x==3:
+        if x == 2:
+            model = model_alpha
+            model_text = "Alphabetic model"
+            print('Model shifted')
+
+        if x == 3:
             model = model_sym
             model_text = "Symbol model"
             print('Model shifted')
 
         return model_text
 
-    def result_map(self,x):
-        ans=''
+    def result_map(self, x):
+        ans = ''
         if x == 2:
-            ans = ' ' #space
+            ans = ' '  # space
         elif x == 3:
-            ans = '.' #period
+            ans = '.'  # period
         elif x == 4:
-            ans = ',' #comma
+            ans = ','  # comma
         elif x == 5:
             ans = chr(8)
         elif x == 6:
-            ans  = '?'
+            ans = '?'
         elif x == 7:
             ans = '!'
         elif x == 8:
@@ -356,7 +363,7 @@ class MainScreen(Screen):
             ans = '/'
         return str(ans)
 
-    def predict_model(self,mask):
+    def predict_model(self, mask):
         mask = cv2.merge((mask, mask, mask))
         gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
         img = cv2.resize(gray, (128, 128))
@@ -372,62 +379,62 @@ class MainScreen(Screen):
 
     def predict(self):
         # Predicting the output
-        global final_mask,model_text
+        global final_mask, model_text
         prediction, prob = self.predict_model(final_mask)
-        r=0
-        result=''
+        r = 0
+        result = ''
         if prob >= .80:
             if model == model_alpha:
                 if prediction[0] == 26:
-                    model_text=self.model_switch(1)
-                    #model switch
-                    r=1
+                    model_text = self.model_switch(1)
+                    # model switch
+                    r = 1
                 elif prediction[0] == 27:
-                    model_text=self.model_switch(3)
-                    #model switch
-                    r=1
+                    model_text = self.model_switch(3)
+                    # model switch
+                    r = 1
                 else:
-                    if r==1:
+                    if r == 1:
                         result = ''
-                        r=0
+                        r = 0
                     else:
                         result = str(chr(prediction[0] + 65))
                     # result = str(chr(result_map(str(prediction)) + 65))
-                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
                     print(prediction[0])
 
             if model == model_num:
                 if prediction[0] == 10:
-                    model_text=self.model_switch(3)
-                    #model switch
-                    r=1
+                    model_text = self.model_switch(3)
+                    # model switch
+                    r = 1
                 elif prediction[0] == 11:
                     print('model switch selected and called')
-                    model_text=self.model_switch(2)
+                    model_text = self.model_switch(2)
                     print('outside model switch')
-                    #model switch
-                    r=1
+                    # model switch
+                    r = 1
                 else:
                     if r == 1:
                         result = ''
-                        r=0
+                        r = 0
                     else:
                         result = str(prediction[0])
-                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
 
             if model == model_sym:
                 if prediction[0] == 0:
                     model_text = self.model_switch(1)
-                    r=1
+                    r = 1
                 elif prediction[0] == 1:
                     model_text = self.model_switch(2)
-                    r=1
+                    r = 1
                 else:
-                    if r==1:
-                        result=''
-                        r=0
+                    if r == 1:
+                        result = ''
+                        r = 0
                     else:
                         result = self.result_map(prediction[0])
                     self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
@@ -435,15 +442,12 @@ class MainScreen(Screen):
 
             return result
 
-    def predict(self):
-        pass
-
     def timer_to_predict(self, dt):
         global interval, timer_val, check
-        if timer_val>0:
+        if timer_val > 0:
             self.predict()
-            timer_val= timer_val - 1
-            if timer_val==0:
+            timer_val = timer_val - 1
+            if timer_val == 0:
                 self.timer_lbl.color = (1, 0, 0, 1)
         else:
             self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
@@ -458,12 +462,12 @@ class MainScreen(Screen):
         self.timer_lbl.text = str(timer_val) + ' s'
 
     def pause_resume(self):
-        global flag,event
-        if flag==0:
-           self.pause_text.text = "Pause"
-           event = Clock.schedule_interval(self.timer_to_predict, 1)
-           flag = 2 
-        else: 
+        global flag, event
+        if flag == 0:
+            self.pause_text.text = "Pause"
+            event = Clock.schedule_interval(self.timer_to_predict, 1)
+            flag = 2
+        else:
             if self.pause_text.text == "Pause":
                 self.pause_text.text = "Resume"
                 event.cancel()
@@ -475,36 +479,36 @@ class MainScreen(Screen):
         global u_hue
         u_hue = int(val)
         self.u_hue_lbl.text = str(u_hue)
-        
+
     def slider_change_u_saturation(self, val):
         global u_saturation
         u_saturation = int(val)
         self.u_sat_lbl.text = str(u_saturation)
-        
+
     def slider_change_u_value(self, val):
         global u_value
         u_value = int(val)
         self.u_val_lbl.text = str(u_value)
-        
+
     def slider_change_l_hue(self, val):
         global l_hue
         l_hue = int(val)
         self.l_hue_lbl.text = str(l_hue)
-        
+
     def slider_change_l_saturation(self, val):
         global l_saturation
         l_saturation = int(val)
         self.l_sat_lbl.text = str(l_saturation)
-        
+
     def slider_change_l_value(self, val):
         global l_value
         l_value = int(val)
         self.l_val_lbl.text = str(l_value)
 
-    def thresh_change(self,val):
+    def thresh_change(self, val):
         global t
         t = int(val)
-        self.thresh_lbl.text = str(val) 
+        self.thresh_lbl.text = str(val)
 
     def interval_change(self, val):
         global interval, timer_val
@@ -521,7 +525,7 @@ class MainScreen(Screen):
     def speak(self):
         engine = pyttsx.init()
         rate = engine.getProperty('rate')
-        engine.setProperty('rate', rate-15)
+        engine.setProperty('rate', rate - 15)
         if self.sentence.text != '':
             engine.say(self.sentence.text)
         engine.runAndWait()
@@ -534,12 +538,15 @@ class MainScreen(Screen):
 class ScreenManagement(ScreenManager):
     pass
 
+
 App_kv = Builder.load_file("App.kv")
+
 
 class MainApp(App):
 
     def build(self):
         return App_kv
+
 
 if __name__ == '__main__':
     MainApp().run()

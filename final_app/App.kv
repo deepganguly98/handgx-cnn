@@ -122,7 +122,7 @@ ScreenManagement:
             pos: self.pos
             size: self.size
     padding: root.width*0.005 + root.height*0.005
-    
+    on_enter: root.on_start()
     pause_text : pause
     slider_lbl : slider_lbl
     timer_lbl : timer_lbl
@@ -134,6 +134,7 @@ ScreenManagement:
     slider_main : slider_main
     qrcam2_1 : qrcam2_1
     qrcam2_2 : qrcam2_2
+
 
     u_hue_lbl : u_hue_lbl 
     u_sat_lbl : u_sat_lbl 
