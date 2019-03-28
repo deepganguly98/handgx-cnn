@@ -7,7 +7,8 @@ import cv2
 import pyttsx
 import imutils
 import pickle
-
+import os
+import re
 from create_histogram import *
 
 import kivy.core.text
@@ -29,6 +30,8 @@ from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
+from kivy.factory import Factory
+from kivy.uix.floatlayout import FloatLayout
 
 # _________________
 # GLOBAL VARIABLES
@@ -52,7 +55,7 @@ t = 128
 check = True
 
 interval = 3
-#From slider 
+# From slider
 
 final_mask = None
 # To be passed to predict function
@@ -63,9 +66,11 @@ timer_val = 3
 
 event = None
 
-#variable to hold the live video frames
+# variable to hold the live video frames
 capture = None
 roi = None
+hand_hist = None
+hist_name = None
 
 model_alpha = load_model('../model/extended_atoz_2.h5')
 model_num = load_model('../model/extended_0to9_2.h5')
@@ -74,16 +79,18 @@ model_sym = load_model('../model/extended_0to9_2.h5')
 model = model_alpha
 model_text = 'Alphabetic model'
 
+
 class KivyCamera(Image):
 
-    #init function to initialize the capture variable
+    # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
         global capture
         capture = cv2.VideoCapture(0)
         self.start(capture)
+
     # start function for the first color video to to copy capture from the cv2 module and refresh it at regular intervals using 'update' function
-    
+
     def start(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
@@ -99,9 +106,12 @@ class KivyCamera(Image):
         global roi, flip
         return_value, frame = self.capture.read()
         frame = cv2.flip(frame, 1)
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 2)
         roi = frame[100:400, 300:600]
         roi = draw_rect(roi)
+
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -111,24 +121,25 @@ class KivyCamera(Image):
             texture.blit_buffer(frame.tobytes(), colorfmt='bgr')
             self.canvas.ask_update()
 
+
 class KivyCamera2(Image):
-    #init function to initialize the capture variable
+    # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera2, self).__init__(**kwargs)
-        global capture
-        capture = cv2.VideoCapture(0)
         self.capture = None
+        # capture = cv2.VideoCapture(0)
+        # self.start(capture)
 
     def start(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
 
-    def start(self, capture, fps=30):
+    def start1(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update1, 1.0 / fps)
 
     def manage_image_opr(self, frame):
-        global u_hue,u_saturation,u_value,l_hue,l_saturation,l_value, t
+        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
         roi = frame[100:400, 300:600]
 
         cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 3)
@@ -171,7 +182,7 @@ class KivyCamera2(Image):
             return mask
         except:
             pass
-            t=128
+            t = 128
             mask = np.zeros((128, 128), np.uint8)
             return mask
 
@@ -203,12 +214,14 @@ class KivyCamera2(Image):
             t = 128
 
     def update(self, dt):
-        global roi
-        return_value, frame = self.capture.read()
+        global roi, capture
+        return_value, frame = capture.read()
+        if capture == None:
+            print('none')
         frame = cv2.flip(frame, 1)
-
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         self.trackpalm(frame)
-
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -220,15 +233,19 @@ class KivyCamera2(Image):
             self.canvas.ask_update()
 
     def update1(self, dt):
-        global roi, final_mask
-        return_value, frame = self.capture.read()
+        global roi, final_mask, capture
+        return_value, frame = capture.read()
         frame = cv2.flip(frame, 1)
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         roi = frame[100:400, 300:600]
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (31, 31), 0)
         mask = self.manage_image_opr(frame)
         final_mask = mask
         frame = cv2.resize(mask, (300, 300))
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -238,47 +255,100 @@ class KivyCamera2(Image):
             texture.blit_buffer(frame.tobytes(), colorfmt='luminance')
             self.canvas.ask_update()
 
+class LoadDialog(FloatLayout):
+    load = ObjectProperty(None)
+    cancel = ObjectProperty(None)
+
+
+class SaveDialog(FloatLayout):
+    save = ObjectProperty(None)
+    text_input = ObjectProperty(None)
+    cancel = ObjectProperty(None)
 
 class HistCreationScreen(Screen):
-
     orient = ObjectProperty(None)
     hist_main = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
+    savefile = ObjectProperty(None)
+    hist_selected = ObjectProperty(None)
+
 
     def __init__(self, **kwargs):
         super(HistCreationScreen, self).__init__(**kwargs)
-        Window.size = (1350,620)
+        Window.size = (1350, 620)
+
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def show_load(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def show_save(self):
+        content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Save file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load(self, path, filename):
+        global hist_name
+        with open(os.path.join(path, filename[0]), "rb") as f:
+            hist = pickle.load(f)
+        # with open(os.path.join(path, filename[0])) as stream:
+        #    hist = stream.read()
+        # extract
+        text = re.split('/',filename[0])
+        hist_name = text[len(text)-1]
+        print(hist_name)
+        print(hist)
+        self.hist_selected.text = hist_name
+        self.dismiss_popup()
+
+    def save(self, path, filename):
+        global hist_name
+        with open(os.path.join(path, filename), "wb") as f:
+            pickle.dump(hand_hist, f)
+        hist_name = filename
+        # with open(os.path.join(path, filename), 'w') as stream:
+        #    stream.write(self.text_input.text)
+        print(hist_name)
+        self.hist_selected.text = hist_name
+        self.dismiss_popup()
+
 
     # def build(self):
     #     # global capture
     #     # capture = cv2.VideoCapture(0)
 
     def generate(self):
-        global roi
+        global roi,hand_hist
         hand_hist = hand_histogram(roi)
         print("Histogram generated!")
+        print(hand_hist)
+        self.show_save()
 
-    def load(self):
-        # Code to load saved histogram and store in hand_hist
-        pass
 
     def flip(self, val):
         global flip
-        
+        print('called')
         if val == 0:
             flip = 1
-            #Flip frame
+            # Flip frame
             self.orient.text = 'Left'
-            self.orient.color = ( 0.45, 0.95, 0.25, 1)
-        
+            self.orient.color = (0.45, 0.95, 0.25, 1)
+
         else:
             flip = 0
             self.orient.text = 'Right'
-            self.orient.color = ( 0.24, 0.64, 0.93, 1)
-            #Do no flip frame    
+            self.orient.color = (0.24, 0.64, 0.93, 1)
+            # Do no flip frame
 
     def accept(self):
         self.qrcam.stop()
         self.manager.current = 'main'
+
 
 class MainScreen(Screen):
     pause_text = ObjectProperty(None)
@@ -300,50 +370,70 @@ class MainScreen(Screen):
     l_hue_lbl = ObjectProperty(None)
     l_sat_lbl = ObjectProperty(None)
     l_val_lbl = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         global flag
         flag = 0
+        print('called')
 
-    def build(self):
-        global capture
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def show_load(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load(self, path, filename):
+
+        with open(os.path.join(path, filename[0]), "rb") as f:
+            hist = pickle.load(f)
+        # with open(os.path.join(path, filename[0])) as stream:
+        #    hist = stream.read()
+        print(hist)
+        self.dismiss_popup()
+
+    def on_start(self):
+        print('called')
         capture = cv2.VideoCapture(0)
         self.qrcam2_1.start(capture)
-        self.qrcam2_2.start(capture)
+        self.qrcam2_2.start1(capture)
 
     def model_switch(self, x):
-        global model,model_text
+        global model, model_text
         print('inside model_switch')
         if x == 1:
             model = model_num
-            model_text= "Numeric Model"
-            print('Model shifted')
-        
-        if x == 2:
-            model = model_alpha
-            model_text ="Alphabetic model"
+            model_text = "Numeric Model"
             print('Model shifted')
 
-        if x==3:
+        if x == 2:
+            model = model_alpha
+            model_text = "Alphabetic model"
+            print('Model shifted')
+
+        if x == 3:
             model = model_sym
             model_text = "Symbol model"
             print('Model shifted')
 
         return model_text
 
-    def result_map(self,x):
-        ans=''
+    def result_map(self, x):
+        ans = ''
         if x == 2:
-            ans = ' ' #space
+            ans = ' '  # space
         elif x == 3:
-            ans = '.' #period
+            ans = '.'  # period
         elif x == 4:
-            ans = ',' #comma
+            ans = ','  # comma
         elif x == 5:
             ans = chr(8)
         elif x == 6:
-            ans  = '?'
+            ans = '?'
         elif x == 7:
             ans = '!'
         elif x == 8:
@@ -356,7 +446,7 @@ class MainScreen(Screen):
             ans = '/'
         return str(ans)
 
-    def predict_model(self,mask):
+    def predict_model(self, mask):
         mask = cv2.merge((mask, mask, mask))
         gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
         img = cv2.resize(gray, (128, 128))
@@ -372,62 +462,62 @@ class MainScreen(Screen):
 
     def predict(self):
         # Predicting the output
-        global final_mask,model_text
+        global final_mask, model_text
         prediction, prob = self.predict_model(final_mask)
-        r=0
-        result=''
+        r = 0
+        result = ''
         if prob >= .80:
             if model == model_alpha:
                 if prediction[0] == 26:
-                    model_text=self.model_switch(1)
-                    #model switch
-                    r=1
+                    model_text = self.model_switch(1)
+                    # model switch
+                    r = 1
                 elif prediction[0] == 27:
-                    model_text=self.model_switch(3)
-                    #model switch
-                    r=1
+                    model_text = self.model_switch(3)
+                    # model switch
+                    r = 1
                 else:
-                    if r==1:
+                    if r == 1:
                         result = ''
-                        r=0
+                        r = 0
                     else:
                         result = str(chr(prediction[0] + 65))
                     # result = str(chr(result_map(str(prediction)) + 65))
-                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
                     print(prediction[0])
 
             if model == model_num:
                 if prediction[0] == 10:
-                    model_text=self.model_switch(3)
-                    #model switch
-                    r=1
+                    model_text = self.model_switch(3)
+                    # model switch
+                    r = 1
                 elif prediction[0] == 11:
                     print('model switch selected and called')
-                    model_text=self.model_switch(2)
+                    model_text = self.model_switch(2)
                     print('outside model switch')
-                    #model switch
-                    r=1
+                    # model switch
+                    r = 1
                 else:
                     if r == 1:
                         result = ''
-                        r=0
+                        r = 0
                     else:
                         result = str(prediction[0])
-                    self.predicted_output.text = result + "(prob=" + str(int(prob*100)) + "%)"
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
 
             if model == model_sym:
                 if prediction[0] == 0:
                     model_text = self.model_switch(1)
-                    r=1
+                    r = 1
                 elif prediction[0] == 1:
                     model_text = self.model_switch(2)
-                    r=1
+                    r = 1
                 else:
-                    if r==1:
-                        result=''
-                        r=0
+                    if r == 1:
+                        result = ''
+                        r = 0
                     else:
                         result = self.result_map(prediction[0])
                     self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
@@ -435,15 +525,12 @@ class MainScreen(Screen):
 
             return result
 
-    def predict(self):
-        pass
-
     def timer_to_predict(self, dt):
         global interval, timer_val, check
-        if timer_val>0:
+        if timer_val > 0:
             self.predict()
-            timer_val= timer_val - 1
-            if timer_val==0:
+            timer_val = timer_val - 1
+            if timer_val == 0:
                 self.timer_lbl.color = (1, 0, 0, 1)
         else:
             self.timer_lbl.color = (0.65, 0.95, 0.35, 1)
@@ -458,12 +545,12 @@ class MainScreen(Screen):
         self.timer_lbl.text = str(timer_val) + ' s'
 
     def pause_resume(self):
-        global flag,event
-        if flag==0:
-           self.pause_text.text = "Pause"
-           event = Clock.schedule_interval(self.timer_to_predict, 1)
-           flag = 2 
-        else: 
+        global flag, event
+        if flag == 0:
+            self.pause_text.text = "Pause"
+            event = Clock.schedule_interval(self.timer_to_predict, 1)
+            flag = 2
+        else:
             if self.pause_text.text == "Pause":
                 self.pause_text.text = "Resume"
                 event.cancel()
@@ -475,36 +562,36 @@ class MainScreen(Screen):
         global u_hue
         u_hue = int(val)
         self.u_hue_lbl.text = str(u_hue)
-        
+
     def slider_change_u_saturation(self, val):
         global u_saturation
         u_saturation = int(val)
         self.u_sat_lbl.text = str(u_saturation)
-        
+
     def slider_change_u_value(self, val):
         global u_value
         u_value = int(val)
         self.u_val_lbl.text = str(u_value)
-        
+
     def slider_change_l_hue(self, val):
         global l_hue
         l_hue = int(val)
         self.l_hue_lbl.text = str(l_hue)
-        
+
     def slider_change_l_saturation(self, val):
         global l_saturation
         l_saturation = int(val)
         self.l_sat_lbl.text = str(l_saturation)
-        
+
     def slider_change_l_value(self, val):
         global l_value
         l_value = int(val)
         self.l_val_lbl.text = str(l_value)
 
-    def thresh_change(self,val):
+    def thresh_change(self, val):
         global t
         t = int(val)
-        self.thresh_lbl.text = str(val) 
+        self.thresh_lbl.text = str(val)
 
     def interval_change(self, val):
         global interval, timer_val
@@ -521,7 +608,7 @@ class MainScreen(Screen):
     def speak(self):
         engine = pyttsx.init()
         rate = engine.getProperty('rate')
-        engine.setProperty('rate', rate-15)
+        engine.setProperty('rate', rate - 15)
         if self.sentence.text != '':
             engine.say(self.sentence.text)
         engine.runAndWait()
@@ -534,12 +621,15 @@ class MainScreen(Screen):
 class ScreenManagement(ScreenManager):
     pass
 
+
 App_kv = Builder.load_file("App.kv")
+
 
 class MainApp(App):
 
     def build(self):
         return App_kv
+
 
 if __name__ == '__main__':
     MainApp().run()
