@@ -8,7 +8,7 @@ import pyttsx
 import imutils
 import pickle
 import os
-
+import re
 from create_histogram import *
 
 import kivy.core.text
@@ -70,6 +70,7 @@ event = None
 capture = None
 roi = None
 hand_hist = None
+hist_name = None
 
 model_alpha = load_model('../model/extended_atoz_2.h5')
 model_num = load_model('../model/extended_0to9_2.h5')
@@ -105,9 +106,12 @@ class KivyCamera(Image):
         global roi, flip
         return_value, frame = self.capture.read()
         frame = cv2.flip(frame, 1)
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 2)
         roi = frame[100:400, 300:600]
         roi = draw_rect(roi)
+
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -215,9 +219,9 @@ class KivyCamera2(Image):
         if capture == None:
             print('none')
         frame = cv2.flip(frame, 1)
-
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         self.trackpalm(frame)
-
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -232,12 +236,16 @@ class KivyCamera2(Image):
         global roi, final_mask, capture
         return_value, frame = capture.read()
         frame = cv2.flip(frame, 1)
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         roi = frame[100:400, 300:600]
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         blur = cv2.GaussianBlur(gray, (31, 31), 0)
         mask = self.manage_image_opr(frame)
         final_mask = mask
         frame = cv2.resize(mask, (300, 300))
+        if flip == 1:
+            frame = cv2.flip(frame,1)
         if return_value:
             texture = self.texture
             w, h = frame.shape[1], frame.shape[0]
@@ -262,6 +270,8 @@ class HistCreationScreen(Screen):
     hist_main = ObjectProperty(None)
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
+    hist_selected = ObjectProperty(None)
+
 
     def __init__(self, **kwargs):
         super(HistCreationScreen, self).__init__(**kwargs)
@@ -283,23 +293,30 @@ class HistCreationScreen(Screen):
         self._popup.open()
 
     def load(self, path, filename):
-
+        global hist_name
         with open(os.path.join(path, filename[0]), "rb") as f:
             hist = pickle.load(f)
         # with open(os.path.join(path, filename[0])) as stream:
         #    hist = stream.read()
+        # extract
+        text = re.split('/',filename[0])
+        hist_name = text[len(text)-1]
+        print(hist_name)
         print(hist)
+        self.hist_selected.text = hist_name
         self.dismiss_popup()
 
     def save(self, path, filename):
-
+        global hist_name
         with open(os.path.join(path, filename), "wb") as f:
             pickle.dump(hand_hist, f)
-
+        hist_name = filename
         # with open(os.path.join(path, filename), 'w') as stream:
         #    stream.write(self.text_input.text)
-
+        print(hist_name)
+        self.hist_selected.text = hist_name
         self.dismiss_popup()
+
 
     # def build(self):
     #     # global capture
@@ -309,15 +326,13 @@ class HistCreationScreen(Screen):
         global roi,hand_hist
         hand_hist = hand_histogram(roi)
         print("Histogram generated!")
-
-    def load(self):
-        # Code to load saved histogram and store in hand_hist
         print(hand_hist)
         self.show_save()
 
+
     def flip(self, val):
         global flip
-
+        print('called')
         if val == 0:
             flip = 1
             # Flip frame
@@ -355,12 +370,31 @@ class MainScreen(Screen):
     l_hue_lbl = ObjectProperty(None)
     l_sat_lbl = ObjectProperty(None)
     l_val_lbl = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         global flag
         flag = 0
         print('called')
+
+    def dismiss_popup(self):
+        self._popup.dismiss()
+
+    def show_load(self):
+        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Load file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()
+
+    def load(self, path, filename):
+
+        with open(os.path.join(path, filename[0]), "rb") as f:
+            hist = pickle.load(f)
+        # with open(os.path.join(path, filename[0])) as stream:
+        #    hist = stream.read()
+        print(hist)
+        self.dismiss_popup()
 
     def on_start(self):
         print('called')

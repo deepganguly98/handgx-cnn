@@ -23,6 +23,7 @@ ScreenManagement:
     lbl_generate : generate
     hist_main : hist_main
     qrcam : qrcam
+    hist_selected : hist_selected
 
     BoxLayout:
     	id : hist_main
@@ -84,6 +85,10 @@ ScreenManagement:
                     font_size: '50sp'
                     bold: True
                     color: ( 0.25, 0.46, 0.95, 1)
+                Label:
+                    id: hist_selected
+                    text: ''
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint: (1,None)
@@ -475,7 +480,9 @@ ScreenManagement:
 					Button:
 						size_hint: (1, None)
 						height: self.texture_size[1] + (2*slider_main.padding[1])
-						text: "Load new histogram"	
+						text: "Load new histogram"
+						on_press:root.show_load()
+
 		TextInput:
 			id : sentence
 			font_size: '20sp'
