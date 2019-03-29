@@ -435,9 +435,13 @@ class MainScreen(Screen):
 
     def on_start(self):
         # print('called')
+        global hist_name
+        if hist_name == None:
+            hist_name = ''
         capture = cv2.VideoCapture(0)
         self.qrcam2_1.start(capture)
         self.qrcam2_2.start1(capture)
+        self.ids.lbl_hist.text = "Histogram : "+hist_name
 
     def model_switch(self, x):
         global model, model_text
