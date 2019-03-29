@@ -56,14 +56,17 @@ def preprocess(iterate, classifier):
             #upper_skin = np.array([20, 255, 255], dtype=np.uint8)
             #lower_skin = np.array([0, 35, 70], dtype=np.uint8)
             #upper_skin = np.array([35, 255, 255], dtype=np.uint8)
+            
             lower_skin = np.array([0, 15, 70], dtype=np.uint8)
             upper_skin = np.array([35, 255, 255], dtype=np.uint8)
             mask = cv2.inRange(hsv, lower_skin, upper_skin)
             mask = cv2.GaussianBlur(mask, (5, 5), 0)
             mask = cv2.merge((mask, mask, mask))
+            re = cv2.resize(mask, (128, 128))
+            
             # cv2.imwrite("orig_canny_processed/"+iterate[j]+"/"+iterate[j]+str(i)+".jpg",canny)
             # cv2.imwrite("orig_contour_processed/"+iterate[j]+"/"+iterate[j]+str(i)+".jpg",img)
-            re = cv2.resize(mask, (128, 128))
+            
             cv2.imwrite("orig_final_threshold_processed_lab2/" + iterate[j] + "/" + iterate[j] + str(i) + ".jpg", re)
             i = i + 1
 

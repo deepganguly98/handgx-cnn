@@ -73,11 +73,11 @@ roi = None
 hand_hist = None
 hist_name = None
 
-model_alpha = load_model('../model/extended_atoz_2.h5')
-model_num = load_model('../model/extended_0to9_2.h5')
-model_sym = load_model('../model/extended_0to9_2.h5')
+# model_alpha = load_model('../model/extended_atoz_2.h5')
+# model_num = load_model('../model/extended_0to9_2.h5')
+# model_sym = load_model('../model/extended_0to9_2.h5')
 
-model = model_alpha
+# model = model_alpha
 model_text = 'Alphabetic model'
 
 
@@ -173,13 +173,13 @@ class KivyCamera2(Image):
             ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
             thresh = cv2.merge((thresh, thresh, thresh))
             r = cv2.bitwise_and(roi, thresh)
-            hsv = cv2.cvtColor(r, cv2.COLOR_BGR2HSV)
 
+            hsv = cv2.cvtColor(r, cv2.COLOR_BGR2HSV)
             lower_skin = np.array([l_hue, l_saturation, l_value], dtype=np.uint8)
             upper_skin = np.array([u_hue, u_saturation, u_value], dtype=np.uint8)
-
             mask = cv2.inRange(hsv, lower_skin, upper_skin)
             mask = cv2.GaussianBlur(mask, (5, 5), 0)
+
             return mask
         except:
             pass
@@ -375,7 +375,6 @@ class HistCreationScreen(Screen):
         self.qrcam.stop()
         self.manager.current = 'main'
 
-
 class MainScreen(Screen):
     pause_text = ObjectProperty(None)
     slider_lbl = ObjectProperty(None)
@@ -472,84 +471,87 @@ class MainScreen(Screen):
             ans = '/'
         return str(ans)
 
-    def predict_model(self, mask):
-        mask = cv2.merge((mask, mask, mask))
-        gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        img = cv2.resize(gray, (128, 128))
-        cv2.imshow('resized', img)
-        img = cv2.resize(gray, (64, 64))
-        img2 = img.reshape(1, 64, 64, 1)
-        prediction = model.predict_classes(img2)
-        predict_prob = model.predict(img2)
-        prob = predict_prob[0][np.argmax(predict_prob[0])]
-        print(predict_prob[0][np.argmax(predict_prob[0])])
+    # def predict_model(self, mask):
+    #     mask = cv2.merge((mask, mask, mask))
+    #     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    #     img = cv2.resize(gray, (128, 128))
+    #     cv2.imshow('resized', img)
+    #     img = cv2.resize(gray, (64, 64))
+    #     img2 = img.reshape(1, 64, 64, 1)
+    #     prediction = model.predict_classes(img2)
+    #     predict_prob = model.predict(img2)
+    #     prob = predict_prob[0][np.argmax(predict_prob[0])]
+    #     print(predict_prob[0][np.argmax(predict_prob[0])])
 
-        return prediction, prob
+    #     return prediction, prob
+
+    # def predict(self):
+    #     # Predicting the output
+    #     global final_mask, model_text
+    #     prediction, prob = self.predict_model(final_mask)
+    #     r = 0
+    #     result = ''
+    #     if prob >= .80:
+    #         if model == model_alpha:
+    #             if prediction[0] == 26:
+    #                 model_text = self.model_switch(1)
+    #                 # model switch
+    #                 r = 1
+    #             elif prediction[0] == 27:
+    #                 model_text = self.model_switch(3)
+    #                 # model switch
+    #                 r = 1
+    #             else:
+    #                 if r == 1:
+    #                     result = ''
+    #                     r = 0
+    #                 else:
+    #                     result = str(chr(prediction[0] + 65))
+    #                 # result = str(chr(result_map(str(prediction)) + 65))
+    #                 self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+    #                 self.model_used.text = model_text
+    #                 print(prediction[0])
+
+    #         if model == model_num:
+    #             if prediction[0] == 10:
+    #                 model_text = self.model_switch(3)
+    #                 # model switch
+    #                 r = 1
+    #             elif prediction[0] == 11:
+    #                 print('model switch selected and called')
+    #                 model_text = self.model_switch(2)
+    #                 print('outside model switch')
+    #                 # model switch
+    #                 r = 1
+    #             else:
+    #                 if r == 1:
+    #                     result = ''
+    #                     r = 0
+    #                 else:
+    #                     result = str(prediction[0])
+    #                 self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+    #                 self.model_used.text = model_text
+
+    #         if model == model_sym:
+    #             if prediction[0] == 0:
+    #                 model_text = self.model_switch(1)
+    #                 r = 1
+    #             elif prediction[0] == 1:
+    #                 model_text = self.model_switch(2)
+    #                 r = 1
+    #             else:
+    #                 if r == 1:
+    #                     result = ''
+    #                     r = 0
+    #                 else:
+    #                     result = self.result_map(prediction[0])
+    #                 self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+    #                 self.model_used.text = model_text
+
+    #         return result
 
     def predict(self):
-        # Predicting the output
-        global final_mask, model_text
-        prediction, prob = self.predict_model(final_mask)
-        r = 0
-        result = ''
-        if prob >= .80:
-            if model == model_alpha:
-                if prediction[0] == 26:
-                    model_text = self.model_switch(1)
-                    # model switch
-                    r = 1
-                elif prediction[0] == 27:
-                    model_text = self.model_switch(3)
-                    # model switch
-                    r = 1
-                else:
-                    if r == 1:
-                        result = ''
-                        r = 0
-                    else:
-                        result = str(chr(prediction[0] + 65))
-                    # result = str(chr(result_map(str(prediction)) + 65))
-                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
-                    self.model_used.text = model_text
-                    print(prediction[0])
-
-            if model == model_num:
-                if prediction[0] == 10:
-                    model_text = self.model_switch(3)
-                    # model switch
-                    r = 1
-                elif prediction[0] == 11:
-                    print('model switch selected and called')
-                    model_text = self.model_switch(2)
-                    print('outside model switch')
-                    # model switch
-                    r = 1
-                else:
-                    if r == 1:
-                        result = ''
-                        r = 0
-                    else:
-                        result = str(prediction[0])
-                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
-                    self.model_used.text = model_text
-
-            if model == model_sym:
-                if prediction[0] == 0:
-                    model_text = self.model_switch(1)
-                    r = 1
-                elif prediction[0] == 1:
-                    model_text = self.model_switch(2)
-                    r = 1
-                else:
-                    if r == 1:
-                        result = ''
-                        r = 0
-                    else:
-                        result = self.result_map(prediction[0])
-                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
-                    self.model_used.text = model_text
-
-            return result
+        pass
 
     def timer_to_predict(self, dt):
         global interval, timer_val, check
@@ -642,6 +644,9 @@ class MainScreen(Screen):
     def check(self, val):
         global check
         check = val
+
+    def previous(self):
+        self.manager.current = 'hist'
 
 
 class ScreenManagement(ScreenManager):
