@@ -59,7 +59,7 @@ def draw_rect(frame):
 
     for i in range(total_rectangle):
         cv2.rectangle(frame, (hand_rect_one_y[i], hand_rect_one_x[i]), (hand_rect_two_y[i], hand_rect_two_x[i]),
-                      (0, 255, 0), 1)
+                      (0, 255, 0), 2)
     return frame
 
 

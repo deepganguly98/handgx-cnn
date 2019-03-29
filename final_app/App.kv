@@ -166,7 +166,7 @@ ScreenManagement:
 	name: 'main'
 	canvas:
         Rectangle:
-            source: '../images/texture2.jpg'
+            source: '../images/texture6.jpg'
             pos: self.pos
             size: self.size
     padding: root.width*0.005 + root.height*0.005
@@ -182,6 +182,7 @@ ScreenManagement:
     slider_main : slider_main
     qrcam2_1 : qrcam2_1
     qrcam2_2 : qrcam2_2
+    lbl_hist : lbl_hist 
 
 
     u_hue_lbl : u_hue_lbl 
@@ -379,7 +380,7 @@ ScreenManagement:
 						bold: True	
 		GridLayout:
 			cols: 4	
-			padding: ['0sp','10sp']
+			padding: ['0sp','15sp']
 			GridLayout:
 				rows: 2
 				padding: ['10sp','30sp']
@@ -499,28 +500,35 @@ ScreenManagement:
 			height: pause.height
 			Button:
 				id: pause
+				text: "Previous"
+				size_hint: (None, None)
+				width: '180sp'
+				height: self.texture_size[1] + (2*slider_main.padding[1])
+				on_press: root.previous()
+			Button:
+				id: pause
 				text: "Start"
 				size_hint: (None, None)
-				width: '200sp'
+				width: '180sp'
 				height: self.texture_size[1] + (2*slider_main.padding[1])
 				on_press: root.pause_resume()
 			Button:
 				id: say_this
 				text: 'Say This'
 				size_hint: (None, None)
-				width: '200sp'
+				width: '180sp'
 				height: self.texture_size[1] + (2*slider_main.padding[1])
 				on_press: root.speak()
 			Button:
 				id: exit
 				text: 'Save file'
 				size_hint: (None, None)
-				width: '200sp'
+				width: '180sp'
 				height: self.texture_size[1] + (2*slider_main.padding[1])
 			BoxLayout:
 				orientation: 'horizontal'
 				Label:
-					text: 'Add predicted to sentence:'
+					text: 'Concatinate prediction:'
 					font_size: root.label_fonts_3
 					bold: True
 					color: (0.25, 0.59, 0.95, 1)
@@ -528,12 +536,8 @@ ScreenManagement:
 					id: sent_check
 					active: True
 					on_active: root.check(sent_check.active)
-
-
-# ======================================================================
-# 									READ
-# ======================================================================
-
-# When a button is clicked use ->
-# app.root.current = 'name of screen'
-# to switch to a different screen
+				Label:
+					id: lbl_hist
+					text: 'Histogram: filename'
+					font_size: root.label_fonts_4
+					bold: True
