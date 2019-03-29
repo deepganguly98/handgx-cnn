@@ -32,7 +32,8 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
-
+from kivy.animation import Animation
+from kivy.uix.progressbar import ProgressBar
 # _________________
 # GLOBAL VARIABLES
 # -----------------
@@ -265,6 +266,31 @@ class SaveDialog(FloatLayout):
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
+t=0
+class SplashScreen(Screen):
+    pb = ObjectProperty(None)
+    def __init__(self, **kwargs):
+        super(SplashScreen, self).__init__(**kwargs)
+        print('called on its own')
+        self.timer_start()
+
+    def timer_start(self):
+        Clock.schedule_interval(self.update, 0.1 )
+
+    def timeup(self):
+        self.manager.current = 'hist'
+
+    def update(self, dt):
+        global t
+        t=t+1
+        self.ids.pb.value = t
+        if (t == 100):
+            Clock.unschedule(self.update)
+            self.manager.current = 'hist'
+
+
+
+
 class HistCreationScreen(Screen):
     orient = ObjectProperty(None)
     hist_main = ObjectProperty(None)
@@ -272,9 +298,9 @@ class HistCreationScreen(Screen):
     savefile = ObjectProperty(None)
     hist_selected = ObjectProperty(None)
 
-
-    def __init__(self, **kwargs):
-        super(HistCreationScreen, self).__init__(**kwargs)
+    # def __init__(self, **kwargs):
+    def histenter(self):
+        # super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
 
     def dismiss_popup(self):
@@ -332,7 +358,7 @@ class HistCreationScreen(Screen):
 
     def flip(self, val):
         global flip
-        print('called')
+        # print('called')
         if val == 0:
             flip = 1
             # Flip frame
@@ -376,7 +402,7 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         global flag
         flag = 0
-        print('called')
+        # print('called')
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -397,7 +423,7 @@ class MainScreen(Screen):
         self.dismiss_popup()
 
     def on_start(self):
-        print('called')
+        # print('called')
         capture = cv2.VideoCapture(0)
         self.qrcam2_1.start(capture)
         self.qrcam2_2.start1(capture)
