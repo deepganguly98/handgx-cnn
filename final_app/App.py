@@ -34,7 +34,6 @@ from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
 from kivy.animation import Animation
 from kivy.uix.progressbar import ProgressBar
-
 # _________________
 # GLOBAL VARIABLES
 # -----------------
@@ -90,9 +89,7 @@ class KivyCamera(Image):
     # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
-        global capture
-        capture = cv2.VideoCapture(0)
-        self.start(capture)
+        self.capture = None
 
     # start function for the first color video to to copy capture from the cv2 module and refresh it at regular intervals using 'update' function
 
@@ -108,8 +105,8 @@ class KivyCamera(Image):
         Clock.unschedule(self.update)
 
     def update(self, dt):
-        global roi, flip
-        return_value, frame = self.capture.read()
+        global roi, flip, capture
+        return_value, frame = capture.read()
         frame = cv2.flip(frame, 1)
         if flip == 1:
             frame = cv2.flip(frame,1)
@@ -142,6 +139,12 @@ class KivyCamera2(Image):
     def start1(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update1, 1.0 / fps)
+
+    def stop(self):
+        Clock.unschedule(self.update)
+
+    def stop1(self):
+        Clock.unschedule(self.update1)
 
     def manage_image_opr(self, frame):
         global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
@@ -270,16 +273,20 @@ class SaveDialog(FloatLayout):
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
+t=0
 class SplashScreen(Screen):
     pb = ObjectProperty(None)
-    
     def __init__(self, **kwargs):
         super(SplashScreen, self).__init__(**kwargs)
+        Window.size = (500, 300)
         print('called on its own')
         self.timer_start()
 
     def timer_start(self):
         Clock.schedule_interval(self.update, 0.1 )
+
+    def timeup(self):
+        self.manager.current = 'hist'
 
     def update(self, dt):
         global splash_timer
@@ -287,10 +294,12 @@ class SplashScreen(Screen):
         self.ids.pb.value = splash_timer
         if (splash_timer == 100):
             Clock.unschedule(self.update)
+            global capture
+            capture = cv2.VideoCapture(0)
             self.manager.current = 'hist'
 
-    def start(self):
-        Window.size = (100,100)
+    #def start(self):
+
 
 class HistCreationScreen(Screen):
     orient = ObjectProperty(None)
@@ -303,6 +312,8 @@ class HistCreationScreen(Screen):
     def histenter(self):
         # super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
+        global capture
+        self.qrcam.start(capture)
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -330,7 +341,7 @@ class HistCreationScreen(Screen):
         hist_name = text[len(text)-1]
         print(hist_name)
         print(hist)
-        self.hist_selected.text = hist_name
+        self.hist_selected.text = "Loaded Histogram : "+hist_name
         self.dismiss_popup()
 
     def save(self, path, filename):
@@ -341,8 +352,9 @@ class HistCreationScreen(Screen):
         # with open(os.path.join(path, filename), 'w') as stream:
         #    stream.write(self.text_input.text)
         print(hist_name)
-        self.hist_selected.text = hist_name
+        self.hist_selected.text = "Generated Histogram : "+hist_name
         self.dismiss_popup()
+
 
     # def build(self):
     #     # global capture
@@ -354,6 +366,7 @@ class HistCreationScreen(Screen):
         print("Histogram generated!")
         print(hand_hist)
         self.show_save()
+
 
     def flip(self, val):
         global flip
@@ -422,9 +435,13 @@ class MainScreen(Screen):
 
     def on_start(self):
         # print('called')
+        global hist_name
+        if hist_name == None:
+            hist_name = ''
         capture = cv2.VideoCapture(0)
         self.qrcam2_1.start(capture)
         self.qrcam2_2.start1(capture)
+        self.ids.lbl_hist.text = "Histogram : "+hist_name
 
     def model_switch(self, x):
         global model, model_text
@@ -645,16 +662,23 @@ class MainScreen(Screen):
         check = val
 
     def previous(self):
+        self.qrcam2_1.stop()
+        self.qrcam2_2.stop1()
         self.manager.current = 'hist'
+
 
 class ScreenManagement(ScreenManager):
     pass
 
+
 App_kv = Builder.load_file("App.kv")
 
+
 class MainApp(App):
+
     def build(self):
         return App_kv
+
 
 if __name__ == '__main__':
     MainApp().run()
