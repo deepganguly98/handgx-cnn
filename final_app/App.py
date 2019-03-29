@@ -86,9 +86,7 @@ class KivyCamera(Image):
     # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
-        global capture
-        capture = cv2.VideoCapture(0)
-        self.start(capture)
+        self.capture = None
 
     # start function for the first color video to to copy capture from the cv2 module and refresh it at regular intervals using 'update' function
 
@@ -97,15 +95,11 @@ class KivyCamera(Image):
         Clock.schedule_interval(self.update, 1.0 / fps)
 
     def stop(self):
-        # global capture
-        # if capture !=None:
-        #     capture.release()
-        #     capture = None
         Clock.unschedule(self.update)
 
     def update(self, dt):
-        global roi, flip
-        return_value, frame = self.capture.read()
+        global roi, flip, capture
+        return_value, frame = capture.read()
         frame = cv2.flip(frame, 1)
         if flip == 1:
             frame = cv2.flip(frame,1)
@@ -138,6 +132,12 @@ class KivyCamera2(Image):
     def start1(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update1, 1.0 / fps)
+
+    def stop(self):
+        Clock.unschedule(self.update)
+
+    def stop1(self):
+        Clock.unschedule(self.update1)
 
     def manage_image_opr(self, frame):
         global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
@@ -298,10 +298,11 @@ class HistCreationScreen(Screen):
     savefile = ObjectProperty(None)
     hist_selected = ObjectProperty(None)
 
-    # def __init__(self, **kwargs):
     def histenter(self):
-        # super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
+        global capture
+        capture = cv2.VideoCapture(0)
+        self.qrcam.start(capture)
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -471,87 +472,85 @@ class MainScreen(Screen):
             ans = '/'
         return str(ans)
 
-    # def predict_model(self, mask):
-    #     mask = cv2.merge((mask, mask, mask))
-    #     gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-    #     img = cv2.resize(gray, (128, 128))
-    #     cv2.imshow('resized', img)
-    #     img = cv2.resize(gray, (64, 64))
-    #     img2 = img.reshape(1, 64, 64, 1)
-    #     prediction = model.predict_classes(img2)
-    #     predict_prob = model.predict(img2)
-    #     prob = predict_prob[0][np.argmax(predict_prob[0])]
-    #     print(predict_prob[0][np.argmax(predict_prob[0])])
+    def predict_model(self, mask):
+        mask = cv2.merge((mask, mask, mask))
+        gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(gray, (128, 128))
+        cv2.imshow('resized', img)
+        img = cv2.resize(gray, (64, 64))
+        img2 = img.reshape(1, 64, 64, 1)
+        prediction = model.predict_classes(img2)
+        predict_prob = model.predict(img2)
+        prob = predict_prob[0][np.argmax(predict_prob[0])]
+        print(predict_prob[0][np.argmax(predict_prob[0])])
 
-    #     return prediction, prob
-
-    # def predict(self):
-    #     # Predicting the output
-    #     global final_mask, model_text
-    #     prediction, prob = self.predict_model(final_mask)
-    #     r = 0
-    #     result = ''
-    #     if prob >= .80:
-    #         if model == model_alpha:
-    #             if prediction[0] == 26:
-    #                 model_text = self.model_switch(1)
-    #                 # model switch
-    #                 r = 1
-    #             elif prediction[0] == 27:
-    #                 model_text = self.model_switch(3)
-    #                 # model switch
-    #                 r = 1
-    #             else:
-    #                 if r == 1:
-    #                     result = ''
-    #                     r = 0
-    #                 else:
-    #                     result = str(chr(prediction[0] + 65))
-    #                 # result = str(chr(result_map(str(prediction)) + 65))
-    #                 self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
-    #                 self.model_used.text = model_text
-    #                 print(prediction[0])
-
-    #         if model == model_num:
-    #             if prediction[0] == 10:
-    #                 model_text = self.model_switch(3)
-    #                 # model switch
-    #                 r = 1
-    #             elif prediction[0] == 11:
-    #                 print('model switch selected and called')
-    #                 model_text = self.model_switch(2)
-    #                 print('outside model switch')
-    #                 # model switch
-    #                 r = 1
-    #             else:
-    #                 if r == 1:
-    #                     result = ''
-    #                     r = 0
-    #                 else:
-    #                     result = str(prediction[0])
-    #                 self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
-    #                 self.model_used.text = model_text
-
-    #         if model == model_sym:
-    #             if prediction[0] == 0:
-    #                 model_text = self.model_switch(1)
-    #                 r = 1
-    #             elif prediction[0] == 1:
-    #                 model_text = self.model_switch(2)
-    #                 r = 1
-    #             else:
-    #                 if r == 1:
-    #                     result = ''
-    #                     r = 0
-    #                 else:
-    #                     result = self.result_map(prediction[0])
-    #                 self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
-    #                 self.model_used.text = model_text
-
-    #         return result
+        return prediction, prob
 
     def predict(self):
-        pass
+        # Predicting the output
+        global final_mask, model_text
+        prediction, prob = self.predict_model(final_mask)
+        r = 0
+        result = ''
+        if prob >= .80:
+            if model == model_alpha:
+                if prediction[0] == 26:
+                    model_text = self.model_switch(1)
+                    # model switch
+                    r = 1
+                elif prediction[0] == 27:
+                    model_text = self.model_switch(3)
+                    # model switch
+                    r = 1
+                else:
+                    if r == 1:
+                        result = ''
+                        r = 0
+                    else:
+                        result = str(chr(prediction[0] + 65))
+                    # result = str(chr(result_map(str(prediction)) + 65))
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+                    self.model_used.text = model_text
+                    print(prediction[0])
+
+            if model == model_num:
+                if prediction[0] == 10:
+                    model_text = self.model_switch(3)
+                    # model switch
+                    r = 1
+                elif prediction[0] == 11:
+                    print('model switch selected and called')
+                    model_text = self.model_switch(2)
+                    print('outside model switch')
+                    # model switch
+                    r = 1
+                else:
+                    if r == 1:
+                        result = ''
+                        r = 0
+                    else:
+                        result = str(prediction[0])
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+                    self.model_used.text = model_text
+
+            if model == model_sym:
+                if prediction[0] == 0:
+                    model_text = self.model_switch(1)
+                    r = 1
+                elif prediction[0] == 1:
+                    model_text = self.model_switch(2)
+                    r = 1
+                else:
+                    if r == 1:
+                        result = ''
+                        r = 0
+                    else:
+                        result = self.result_map(prediction[0])
+                    self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
+                    self.model_used.text = model_text
+
+            return result
+
 
     def timer_to_predict(self, dt):
         global interval, timer_val, check
@@ -646,6 +645,8 @@ class MainScreen(Screen):
         check = val
 
     def previous(self):
+        self.qrcam2_1.stop()
+        self.qrcam2_2.stop1()
         self.manager.current = 'hist'
 
 
