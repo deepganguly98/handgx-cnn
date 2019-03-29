@@ -69,12 +69,10 @@ def hand_histogram(frame):
     hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     roi = np.zeros([750, 10, 3], dtype=hsv_frame.dtype)
 
-    # print(total_rectangle)
     for i in range(total_rectangle):
         roi[i * 10: i * 10 + 10, 0: 10] = hsv_frame[hand_rect_one_x[i]:hand_rect_one_x[i] + 10,
                                           hand_rect_one_y[i]:hand_rect_one_y[i] + 10]
 
-    # print(len(roi))
     hand_hist = cv2.calcHist([roi], [0, 1], None, [180, 256], [0, 180, 0, 256])
     return cv2.normalize(hand_hist, hand_hist, 0, 255, cv2.NORM_MINMAX)
 
@@ -88,9 +86,10 @@ def main():
             _, frame = capture.read()
 
             frame = cv2.flip(frame, 1)
-            #frame2 = frame.copy()
+
             roi = frame[100:400, 300:600]
             cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 0)
+            
             if pressed_key & 0xFF == ord('z'):
                 is_hand_hist_created = True
                 hand_hist = hand_histogram(roi)
