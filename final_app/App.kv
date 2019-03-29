@@ -10,22 +10,29 @@ ScreenManagement:
 	HistCreationScreen:
 
 	MainScreen:
+
 <SplashScreen>:
     name: 'splash'
     pb:pb
+    on_enter: root.start()
     canvas :
         Rectangle:
-			source: "../images/texture7.jpg"
+			source: "../images/texture5.jpg"
 			pos: root.pos
 			size: root.size
 	padding: root.width*0.02, root.height*0.02
 
-    ProgressBar:
-        id:pb
-        size_hint_x:1
-        size_hint_y: None
-        height: '48dp'
-        value: 0
+	BoxLayout:
+		orientation: 'vertical'
+		Label:
+			text: 'HandGX'
+			font_size: '20sp'
+			bold: True
+	    ProgressBar:
+	        id:pb
+	        size_hint: (1, None)
+	        height: '48sp'
+	        value: 0
 
 <HistCreationScreen>:
 	name: 'hist'
