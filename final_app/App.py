@@ -73,11 +73,14 @@ roi = None
 hand_hist = None
 hist_name = None
 
-# model_alpha = load_model('../model/extended_atoz_2.h5')
-# model_num = load_model('../model/extended_0to9_2.h5')
-# model_sym = load_model('../model/extended_0to9_2.h5')
+#Splash screen counter
+splash_timer = 0
 
-# model = model_alpha
+model_alpha = load_model('../model/extended_atoz_2.h5')
+model_num = load_model('../model/extended_0to9_2.h5')
+model_sym = load_model('../model/extended_0to9_2.h5')
+
+model = model_alpha
 model_text = 'Alphabetic model'
 
 
@@ -95,6 +98,10 @@ class KivyCamera(Image):
         Clock.schedule_interval(self.update, 1.0 / fps)
 
     def stop(self):
+        # global capture
+        # if capture !=None:
+        #     capture.release()
+        #     capture = None
         Clock.unschedule(self.update)
 
     def update(self, dt):
@@ -271,6 +278,7 @@ class SplashScreen(Screen):
     pb = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(SplashScreen, self).__init__(**kwargs)
+        Window.size = (500, 300)
         print('called on its own')
         self.timer_start()
 
@@ -281,14 +289,16 @@ class SplashScreen(Screen):
         self.manager.current = 'hist'
 
     def update(self, dt):
-        global t
-        t=t+1
-        self.ids.pb.value = t
-        if (t == 100):
+        global splash_timer
+        splash_timer = splash_timer + 1
+        self.ids.pb.value = splash_timer
+        if (splash_timer == 100):
             Clock.unschedule(self.update)
+            global capture
+            capture = cv2.VideoCapture(0)
             self.manager.current = 'hist'
 
-
+    #def start(self):
 
 
 class HistCreationScreen(Screen):
@@ -298,10 +308,11 @@ class HistCreationScreen(Screen):
     savefile = ObjectProperty(None)
     hist_selected = ObjectProperty(None)
 
+    # def __init__(self, **kwargs):
     def histenter(self):
+        # super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
         global capture
-        capture = cv2.VideoCapture(0)
         self.qrcam.start(capture)
 
     def dismiss_popup(self):
@@ -330,7 +341,7 @@ class HistCreationScreen(Screen):
         hist_name = text[len(text)-1]
         print(hist_name)
         print(hist)
-        self.hist_selected.text = hist_name
+        self.hist_selected.text = "Loaded Histogram : "+hist_name
         self.dismiss_popup()
 
     def save(self, path, filename):
@@ -341,7 +352,7 @@ class HistCreationScreen(Screen):
         # with open(os.path.join(path, filename), 'w') as stream:
         #    stream.write(self.text_input.text)
         print(hist_name)
-        self.hist_selected.text = hist_name
+        self.hist_selected.text = "Generated Histogram : "+hist_name
         self.dismiss_popup()
 
 
@@ -551,6 +562,8 @@ class MainScreen(Screen):
 
             return result
 
+    # def predict(self):
+    #     pass
 
     def timer_to_predict(self, dt):
         global interval, timer_val, check

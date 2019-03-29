@@ -10,28 +10,36 @@ ScreenManagement:
 	HistCreationScreen:
 
 	MainScreen:
+
 <SplashScreen>:
     name: 'splash'
     pb:pb
+    #on_enter: root.start()
     canvas :
         Rectangle:
-			source: "../images/texture7.jpg"
+			source: "../images/splash.png"
 			pos: root.pos
 			size: root.size
 	padding: root.width*0.02, root.height*0.02
 
-    ProgressBar:
-        id:pb
-        size_hint_x:1
-        size_hint_y: None
-        height: '48dp'
-        value: 0
+	BoxLayout:
+		orientation: 'vertical'
+		Label:
+			text: 'HandGX'
+			font_size: '50sp'
+			bold: True
+			italic: True
+	    ProgressBar:
+	        id:pb
+	        size_hint: (1, None)
+	        height: '48sp'
+	        value: 0
 
 <HistCreationScreen>:
 	name: 'hist'
 	canvas:
 		Rectangle:
-			source: "../images/texture7.jpg"
+			source: "../images/texture8.jpg"
 			pos: root.pos
 			size: root.size
 	padding: root.width*0.02, root.height*0.02
@@ -77,20 +85,21 @@ ScreenManagement:
                     spacing: '20sp'
                     Button:
                         id: left_hand
-                        text: '      Left'
+                        text: 'Left'
                         size_hint: (1,None)
                         height: self.texture_size[1] + (2*root.padding[1])
                         font_size: root.button_font_size
-                        background_normal: '../images/left.png'
+                        #background_normal: '../images/left.png'
                         background_color: (1, 1, 1, 0.8)
                         on_press: root.flip(0)
                     Button:
                         id: right_hand
-                        text: 'Right      '
+                        text: 'Right'
                         size_hint: (1,None)
-                        height: self.texture_size[1] + (2*root.padding[1])
+                        #height: self.texture_size[1] + (2*root.padding[1])
+                        height: left_hand.height
                         font_size: root.button_font_size
-                        background_normal: '../images/right.png'
+                        #background_normal: '../images/right.png'
                         background_color: (1, 1, 1, 0.8)
                         on_press: root.flip(1)
                 Label:
@@ -107,6 +116,9 @@ ScreenManagement:
                 Label:
                     id: hist_selected
                     text: ''
+                    bold: True
+                    font_size: '36sp'
+
 
         BoxLayout:
             orientation: 'horizontal'
