@@ -9,6 +9,7 @@ import imutils
 import pickle
 import os
 import re
+
 from create_histogram import *
 
 import kivy.core.text
@@ -34,7 +35,6 @@ from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
 from kivy.animation import Animation
 from kivy.uix.progressbar import ProgressBar
-
 # _________________
 # GLOBAL VARIABLES
 # -----------------
@@ -90,9 +90,7 @@ class KivyCamera(Image):
     # init function to initialize the capture variable
     def __init__(self, **kwargs):
         super(KivyCamera, self).__init__(**kwargs)
-        global capture
-        capture = cv2.VideoCapture(0)
-        self.start(capture)
+        self.capture = None
 
     # start function for the first color video to to copy capture from the cv2 module and refresh it at regular intervals using 'update' function
 
@@ -108,8 +106,8 @@ class KivyCamera(Image):
         Clock.unschedule(self.update)
 
     def update(self, dt):
-        global roi, flip
-        return_value, frame = self.capture.read()
+        global roi, flip, capture
+        return_value, frame = capture.read()
         frame = cv2.flip(frame, 1)
         if flip == 1:
             frame = cv2.flip(frame,1)
@@ -143,8 +141,14 @@ class KivyCamera2(Image):
         self.capture = capture
         Clock.schedule_interval(self.update1, 1.0 / fps)
 
+    def stop(self):
+        Clock.unschedule(self.update)
+
+    def stop1(self):
+        Clock.unschedule(self.update1)
+
     def manage_image_opr(self, frame):
-        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
+        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t, hand_hist
         roi = frame[100:400, 300:600]
 
         cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 3)
@@ -168,10 +172,10 @@ class KivyCamera2(Image):
             cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
             roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
             hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-            with open("../histogram/hist_home2", "rb") as f:
-                hist = pickle.load(f)
+            # with open("../histogram/hist_home2", "rb") as f:
+            #     hist = pickle.load(f)
 
-            dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
+            dst = cv2.calcBackProject([hsv], [0, 1], hand_hist, [0, 180, 0, 256], 1)
             disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
             cv2.filter2D(dst, -1, disc, dst)
             ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
@@ -270,16 +274,20 @@ class SaveDialog(FloatLayout):
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
+t=0
 class SplashScreen(Screen):
     pb = ObjectProperty(None)
-    
     def __init__(self, **kwargs):
         super(SplashScreen, self).__init__(**kwargs)
+        Window.size = (500, 300)
         print('called on its own')
         self.timer_start()
 
     def timer_start(self):
         Clock.schedule_interval(self.update, 0.1 )
+
+    def timeup(self):
+        self.manager.current = 'hist'
 
     def update(self, dt):
         global splash_timer
@@ -287,10 +295,12 @@ class SplashScreen(Screen):
         self.ids.pb.value = splash_timer
         if (splash_timer == 100):
             Clock.unschedule(self.update)
+            global capture
+            capture = cv2.VideoCapture(0)
             self.manager.current = 'hist'
 
-    def start(self):
-        Window.size = (100,100)
+    #def start(self):
+
 
 class HistCreationScreen(Screen):
     orient = ObjectProperty(None)
@@ -303,6 +313,8 @@ class HistCreationScreen(Screen):
     def histenter(self):
         # super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
+        global capture
+        self.qrcam.start(capture)
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -320,17 +332,14 @@ class HistCreationScreen(Screen):
         self._popup.open()
 
     def load(self, path, filename):
-        global hist_name
+        global hist_name, hand_hist
         with open(os.path.join(path, filename[0]), "rb") as f:
-            hist = pickle.load(f)
-        # with open(os.path.join(path, filename[0])) as stream:
-        #    hist = stream.read()
-        # extract
+            hand_hist = pickle.load(f)
         text = re.split('/',filename[0])
         hist_name = text[len(text)-1]
         print(hist_name)
-        print(hist)
-        self.hist_selected.text = hist_name
+        print(hand_hist)
+        self.hist_selected.text = "Loaded Histogram : " + hist_name
         self.dismiss_popup()
 
     def save(self, path, filename):
@@ -341,8 +350,9 @@ class HistCreationScreen(Screen):
         # with open(os.path.join(path, filename), 'w') as stream:
         #    stream.write(self.text_input.text)
         print(hist_name)
-        self.hist_selected.text = hist_name
+        self.hist_selected.text = "Generated Histogram : "+hist_name
         self.dismiss_popup()
+
 
     # def build(self):
     #     # global capture
@@ -354,6 +364,7 @@ class HistCreationScreen(Screen):
         print("Histogram generated!")
         print(hand_hist)
         self.show_save()
+
 
     def flip(self, val):
         global flip
@@ -383,6 +394,8 @@ class MainScreen(Screen):
     thresh_lbl = ObjectProperty(None)
     sentence = ObjectProperty(None)
     sent_check = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
+    lbl_hist = ObjectProperty(None)
 
     slider_main = ObjectProperty(None)
     qrcam2_1 = ObjectProperty(None)
@@ -394,8 +407,7 @@ class MainScreen(Screen):
     l_hue_lbl = ObjectProperty(None)
     l_sat_lbl = ObjectProperty(None)
     l_val_lbl = ObjectProperty(None)
-    loadfile = ObjectProperty(None)
-
+    
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         global flag
@@ -406,25 +418,36 @@ class MainScreen(Screen):
         self._popup.dismiss()
 
     def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        content = LoadDialog(load=self.load_txt, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.open()
 
-    def load(self, path, filename):
+    def show_save_txt(self):
+        content = SaveDialog(save=self.save_txt, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Save file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()    
 
-        with open(os.path.join(path, filename[0]), "rb") as f:
-            hist = pickle.load(f)
-        # with open(os.path.join(path, filename[0])) as stream:
-        #    hist = stream.read()
-        print(hist)
+    def save_txt(self, path, filename):
+        with open(os.path.join(path, filename), 'w') as stream:
+           stream.write(self.sentence.text)
+        self.dismiss_popup()
+
+    def load_txt(self, path, filename):
+        with open(os.path.join(path, filename[0])) as stream:
+            self.sentence.text = stream.read()
         self.dismiss_popup()
 
     def on_start(self):
         # print('called')
+        global hist_name
+        if hist_name == None:
+            hist_name = ''
         capture = cv2.VideoCapture(0)
         self.qrcam2_1.start(capture)
         self.qrcam2_2.start1(capture)
+        self.ids.lbl_hist.text = "Histogram : "+hist_name
 
     def model_switch(self, x):
         global model, model_text
@@ -449,25 +472,25 @@ class MainScreen(Screen):
     def result_map(self, x):
         ans = ''
         if x == 2:
-            ans = ' '  # space
+            ans = '+' 
         elif x == 3:
-            ans = '.'  # period
+            ans = '-' 
         elif x == 4:
-            ans = ','  # comma
+            ans = '*' 
         elif x == 5:
-            ans = chr(8)
+            ans = '/'
         elif x == 6:
-            ans = '?'
+            ans = '?' 
         elif x == 7:
             ans = '!'
         elif x == 8:
-            ans = '+'
+            ans = '.'
         elif x == 9:
-            ans = '-'
+            ans = ','
         elif x == 10:
-            ans = '*'
+            ans = ' '
         elif x == 11:
-            ans = '/'
+            ans = chr(8)
         return str(ans)
 
     def predict_model(self, mask):
@@ -645,16 +668,23 @@ class MainScreen(Screen):
         check = val
 
     def previous(self):
+        self.qrcam2_1.stop()
+        self.qrcam2_2.stop1()
         self.manager.current = 'hist'
+
 
 class ScreenManagement(ScreenManager):
     pass
 
+
 App_kv = Builder.load_file("App.kv")
 
+
 class MainApp(App):
+
     def build(self):
         return App_kv
+
 
 if __name__ == '__main__':
     MainApp().run()

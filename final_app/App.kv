@@ -14,10 +14,10 @@ ScreenManagement:
 <SplashScreen>:
     name: 'splash'
     pb:pb
-    on_enter: root.start()
+    #on_enter: root.start()
     canvas :
         Rectangle:
-			source: "../images/texture5.jpg"
+			source: "../images/splash.png"
 			pos: root.pos
 			size: root.size
 	padding: root.width*0.02, root.height*0.02
@@ -26,8 +26,9 @@ ScreenManagement:
 		orientation: 'vertical'
 		Label:
 			text: 'HandGX'
-			font_size: '20sp'
+			font_size: '50sp'
 			bold: True
+			italic: True
 	    ProgressBar:
 	        id:pb
 	        size_hint: (1, None)
@@ -38,11 +39,11 @@ ScreenManagement:
 	name: 'hist'
 	canvas:
 		Rectangle:
-			source: "../images/texture7.jpg"
+			source: "../images/texture8.jpg"
 			pos: root.pos
 			size: root.size
 	padding: root.width*0.02, root.height*0.02
-	on_enter:root.histenter()
+	on_enter: root.histenter()
 	button_font_size: '25sp'
 
 	orient : orient
@@ -84,20 +85,21 @@ ScreenManagement:
                     spacing: '20sp'
                     Button:
                         id: left_hand
-                        text: '      Left'
+                        text: 'Left'
                         size_hint: (1,None)
                         height: self.texture_size[1] + (2*root.padding[1])
                         font_size: root.button_font_size
-                        background_normal: '../images/left.png'
+                        #background_normal: '../images/left.png'
                         background_color: (1, 1, 1, 0.8)
                         on_press: root.flip(0)
                     Button:
                         id: right_hand
-                        text: 'Right      '
+                        text: 'Right'
                         size_hint: (1,None)
-                        height: self.texture_size[1] + (2*root.padding[1])
+                        #height: self.texture_size[1] + (2*root.padding[1])
+                        height: left_hand.height
                         font_size: root.button_font_size
-                        background_normal: '../images/right.png'
+                        #background_normal: '../images/right.png'
                         background_color: (1, 1, 1, 0.8)
                         on_press: root.flip(1)
                 Label:
@@ -114,6 +116,9 @@ ScreenManagement:
                 Label:
                     id: hist_selected
                     text: ''
+                    bold: True
+                    font_size: '36sp'
+
 
         BoxLayout:
             orientation: 'horizontal'
@@ -209,7 +214,6 @@ ScreenManagement:
     qrcam2_1 : qrcam2_1
     qrcam2_2 : qrcam2_2
     lbl_hist : lbl_hist 
-
 
     u_hue_lbl : u_hue_lbl 
     u_sat_lbl : u_sat_lbl 
@@ -507,7 +511,7 @@ ScreenManagement:
 					Button:
 						size_hint: (1, None)
 						height: self.texture_size[1] + (2*slider_main.padding[1])
-						text: "Load new histogram"
+						text: "Load text file"
 						on_press:root.show_load()
 
 		TextInput:
@@ -551,6 +555,7 @@ ScreenManagement:
 				size_hint: (None, None)
 				width: '180sp'
 				height: self.texture_size[1] + (2*slider_main.padding[1])
+				on_press: root.show_save_txt()
 			BoxLayout:
 				orientation: 'horizontal'
 				Label:
@@ -564,6 +569,6 @@ ScreenManagement:
 					on_active: root.check(sent_check.active)
 				Label:
 					id: lbl_hist
-					text: 'Histogram: filename'
+					text: 'Histogram : '
 					font_size: root.label_fonts_4
 					bold: True
