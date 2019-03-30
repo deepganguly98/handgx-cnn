@@ -215,7 +215,6 @@ ScreenManagement:
     qrcam2_2 : qrcam2_2
     lbl_hist : lbl_hist 
 
-
     u_hue_lbl : u_hue_lbl 
     u_sat_lbl : u_sat_lbl 
     u_val_lbl : u_val_lbl 
@@ -512,7 +511,7 @@ ScreenManagement:
 					Button:
 						size_hint: (1, None)
 						height: self.texture_size[1] + (2*slider_main.padding[1])
-						text: "Load new histogram"
+						text: "Load text file"
 						on_press:root.show_load()
 
 		TextInput:
@@ -556,6 +555,7 @@ ScreenManagement:
 				size_hint: (None, None)
 				width: '180sp'
 				height: self.texture_size[1] + (2*slider_main.padding[1])
+				on_press: root.show_save_txt()
 			BoxLayout:
 				orientation: 'horizontal'
 				Label:

@@ -9,6 +9,7 @@ import imutils
 import pickle
 import os
 import re
+
 from create_histogram import *
 
 import kivy.core.text
@@ -147,7 +148,7 @@ class KivyCamera2(Image):
         Clock.unschedule(self.update1)
 
     def manage_image_opr(self, frame):
-        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t
+        global u_hue, u_saturation, u_value, l_hue, l_saturation, l_value, t, hand_hist
         roi = frame[100:400, 300:600]
 
         cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 3)
@@ -171,10 +172,10 @@ class KivyCamera2(Image):
             cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
             roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
             hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-            with open("../histogram/hist_home2", "rb") as f:
-                hist = pickle.load(f)
+            # with open("../histogram/hist_home2", "rb") as f:
+            #     hist = pickle.load(f)
 
-            dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
+            dst = cv2.calcBackProject([hsv], [0, 1], hand_hist, [0, 180, 0, 256], 1)
             disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
             cv2.filter2D(dst, -1, disc, dst)
             ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
@@ -331,17 +332,14 @@ class HistCreationScreen(Screen):
         self._popup.open()
 
     def load(self, path, filename):
-        global hist_name
+        global hist_name, hand_hist
         with open(os.path.join(path, filename[0]), "rb") as f:
-            hist = pickle.load(f)
-        # with open(os.path.join(path, filename[0])) as stream:
-        #    hist = stream.read()
-        # extract
+            hand_hist = pickle.load(f)
         text = re.split('/',filename[0])
         hist_name = text[len(text)-1]
         print(hist_name)
-        print(hist)
-        self.hist_selected.text = "Loaded Histogram : "+hist_name
+        print(hand_hist)
+        self.hist_selected.text = "Loaded Histogram : " + hist_name
         self.dismiss_popup()
 
     def save(self, path, filename):
@@ -396,6 +394,8 @@ class MainScreen(Screen):
     thresh_lbl = ObjectProperty(None)
     sentence = ObjectProperty(None)
     sent_check = ObjectProperty(None)
+    loadfile = ObjectProperty(None)
+    lbl_hist = ObjectProperty(None)
 
     slider_main = ObjectProperty(None)
     qrcam2_1 = ObjectProperty(None)
@@ -407,8 +407,7 @@ class MainScreen(Screen):
     l_hue_lbl = ObjectProperty(None)
     l_sat_lbl = ObjectProperty(None)
     l_val_lbl = ObjectProperty(None)
-    loadfile = ObjectProperty(None)
-
+    
     def __init__(self, **kwargs):
         super(MainScreen, self).__init__(**kwargs)
         global flag
@@ -419,18 +418,25 @@ class MainScreen(Screen):
         self._popup.dismiss()
 
     def show_load(self):
-        content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
+        content = LoadDialog(load=self.load_txt, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content,
                             size_hint=(0.9, 0.9))
         self._popup.open()
 
-    def load(self, path, filename):
+    def show_save_txt(self):
+        content = SaveDialog(save=self.save_txt, cancel=self.dismiss_popup)
+        self._popup = Popup(title="Save file", content=content,
+                            size_hint=(0.9, 0.9))
+        self._popup.open()    
 
-        with open(os.path.join(path, filename[0]), "rb") as f:
-            hist = pickle.load(f)
-        # with open(os.path.join(path, filename[0])) as stream:
-        #    hist = stream.read()
-        print(hist)
+    def save_txt(self, path, filename):
+        with open(os.path.join(path, filename), 'w') as stream:
+           stream.write(self.sentence.text)
+        self.dismiss_popup()
+
+    def load_txt(self, path, filename):
+        with open(os.path.join(path, filename[0])) as stream:
+            self.sentence.text = stream.read()
         self.dismiss_popup()
 
     def on_start(self):
@@ -466,25 +472,25 @@ class MainScreen(Screen):
     def result_map(self, x):
         ans = ''
         if x == 2:
-            ans = ' '  # space
+            ans = '+' 
         elif x == 3:
-            ans = '.'  # period
+            ans = '-' 
         elif x == 4:
-            ans = ','  # comma
+            ans = '*' 
         elif x == 5:
-            ans = chr(8)
+            ans = '/'
         elif x == 6:
-            ans = '?'
+            ans = '?' 
         elif x == 7:
             ans = '!'
         elif x == 8:
-            ans = '+'
+            ans = '.'
         elif x == 9:
-            ans = '-'
+            ans = ','
         elif x == 10:
-            ans = '*'
+            ans = ' '
         elif x == 11:
-            ans = '/'
+            ans = chr(8)
         return str(ans)
 
     def predict_model(self, mask):
