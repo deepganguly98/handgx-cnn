@@ -79,11 +79,7 @@ def model_switch(x):
 def manage_image_opr(frame):
 
     roi = frame[100:400, 300:600]
-
-    cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 0)
-    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (31, 31), 0)
-
+    
     # l = cv2.getTrackbarPos('Lower', 'Thresh limit')
     # v = cv2.getTrackbarPos('Upper', 'Thresh limit')
     t = cv2.getTrackbarPos('Thresh', 'Thresh limit')
@@ -96,6 +92,10 @@ def manage_image_opr(frame):
     sat_u = cv2.getTrackbarPos('Saturation', 'Upper limit')
     val_u = cv2.getTrackbarPos('Value', 'Upper limit')
     #print(t)
+    cv2.rectangle(frame, (300, 100), (600, 400), (0, 255, 0), 0)
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    blur = cv2.GaussianBlur(gray, (31, 31), 0)
+
     _, thresh = cv2.threshold(blur, t, 255, cv2.THRESH_BINARY_INV)
 
     #cv2.imshow('contour_thresh', thresh)
