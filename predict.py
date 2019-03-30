@@ -115,20 +115,22 @@ def manage_image_opr(frame):
     bottommost = tuple(conts[conts[:, :, 1].argmax()][0])
     cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
     roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
-    #cv2.imshow('roi', roi_copy)
+    cv2.imshow('roi', roi_copy)
     hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+    cv2.imshow('hsv',hsv)
     #with open("histogram/hist_home", "rb") as f:
     #    hist = pickle.load(f)
     with open("histogram/hist_home2", "rb") as f:
         hist = pickle.load(f)
 
     dst = cv2.calcBackProject([hsv], [0, 1], hist, [0, 180, 0, 256], 1)
+    #cv2.imshow('dst', dst)
     disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
     cv2.filter2D(dst, -1, disc, dst)
     ret, thresh = cv2.threshold(dst, 0, 255, cv2.THRESH_BINARY)
     thresh = cv2.merge((thresh, thresh, thresh))
     r = cv2.bitwise_and(roi, thresh)
-    #cv2.imshow("bitwise_and", r)
+    cv2.imshow("bitwise_and", r)
     hsv = cv2.cvtColor(r, cv2.COLOR_BGR2HSV)
 
     # lower_skin = np.array([0, 20, 70], dtype=np.uint8)
@@ -140,8 +142,8 @@ def manage_image_opr(frame):
     mask = cv2.inRange(hsv, lower_skin, upper_skin)
     mask = cv2.GaussianBlur(mask, (5, 5), 0)
     mask = cv2.merge((mask, mask, mask))
-    #cv2.imshow('mask', mask)
-    #cv2.imshow('frame', frame)
+    cv2.imshow('mask', mask)
+    cv2.imshow('frame', frame)
     return mask
 
 
