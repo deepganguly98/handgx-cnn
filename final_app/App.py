@@ -8,7 +8,6 @@ import pyttsx
 import imutils
 import pickle
 import os
-import re
 
 from create_histogram import *
 
@@ -99,10 +98,6 @@ class KivyCamera(Image):
         Clock.schedule_interval(self.update, 1.0 / fps)
 
     def stop(self):
-        # global capture
-        # if capture !=None:
-        #     capture.release()
-        #     capture = None
         Clock.unschedule(self.update)
 
     def update(self, dt):
@@ -505,7 +500,7 @@ class MainScreen(Screen):
         mask = cv2.merge((mask, mask, mask))
         gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
         img = cv2.resize(gray, (128, 128))
-        cv2.imshow('resized', img)
+        cv2.imshow9('resized', img)
         img = cv2.resize(gray, (64, 64))
         img2 = img.reshape(1, 64, 64, 1)
         prediction = model.predict_classes(img2)
