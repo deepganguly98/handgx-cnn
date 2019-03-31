@@ -8,7 +8,6 @@ import pyttsx
 import imutils
 import pickle
 import os
-import re
 
 from create_histogram import *
 
@@ -44,16 +43,22 @@ flip = 0
 
 # variable to hold the live video frames
 capture = None
+
+#region of interest
 roi = None
 
+#dynamic hsv slider values
 u_hue = 104
 u_saturation = 135
 u_value = 148
 l_hue = 0
 l_saturation = 0
 l_value = 15
+
+#threshold value
 t = 128
 
+#variable for concatenation checkbox 
 check = True
 
 interval = 3
@@ -99,10 +104,6 @@ class KivyCamera(Image):
         Clock.schedule_interval(self.update, 1.0 / fps)
 
     def stop(self):
-        # global capture
-        # if capture !=None:
-        #     capture.release()
-        #     capture = None
         Clock.unschedule(self.update)
 
     def update(self, dt):
@@ -130,9 +131,7 @@ class KivyCamera2(Image):
     def __init__(self, **kwargs):
         super(KivyCamera2, self).__init__(**kwargs)
         self.capture = None
-        # capture = cv2.VideoCapture(0)
-        # self.start(capture)
-
+     
     def start(self, capture, fps=30):
         self.capture = capture
         Clock.schedule_interval(self.update, 1.0 / fps)
@@ -172,8 +171,6 @@ class KivyCamera2(Image):
             cv2.rectangle(roi, (leftmost[0], topmost[1]), (rightmost[0], topmost[1] + cY), (0, 0, 255), 0)
             roi = roi_copy[topmost[1]:topmost[1] + topmost[1] + cY, leftmost[0]:leftmost[0] + rightmost[0]]
             hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-            # with open("../histogram/hist_home2", "rb") as f:
-            #     hist = pickle.load(f)
 
             dst = cv2.calcBackProject([hsv], [0, 1], hand_hist, [0, 180, 0, 256], 1)
             disc = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (40, 40))
@@ -274,7 +271,6 @@ class SaveDialog(FloatLayout):
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
-t=0
 class SplashScreen(Screen):
     pb = ObjectProperty(None)
     def __init__(self, **kwargs):
@@ -299,9 +295,6 @@ class SplashScreen(Screen):
             capture = cv2.VideoCapture(0)
             self.manager.current = 'hist'
 
-    #def start(self):
-
-
 class HistCreationScreen(Screen):
     orient = ObjectProperty(None)
     hist_main = ObjectProperty(None)
@@ -309,9 +302,7 @@ class HistCreationScreen(Screen):
     savefile = ObjectProperty(None)
     hist_selected = ObjectProperty(None)
 
-    # def __init__(self, **kwargs):
     def histenter(self):
-        # super(HistCreationScreen, self).__init__(**kwargs)
         Window.size = (1350, 620)
         global capture
         self.qrcam.start(capture)
@@ -335,12 +326,7 @@ class HistCreationScreen(Screen):
         global hist_name, hand_hist
         with open(os.path.join(path, filename[0]), "rb") as f:
             hand_hist = pickle.load(f)
-        # text = re.split('/',filename[0])
-        # text = re.split('\\',text)
-        # hist_name = text[len(text)-1]
         hist_name = os.path.basename(filename[0])
-            # print(hist_name)
-            # print(hand_hist)
         self.hist_selected.text = "Loaded Histogram : " + hist_name
         self.dismiss_popup()
 
@@ -349,28 +335,17 @@ class HistCreationScreen(Screen):
         with open(os.path.join(path, filename), "wb") as f:
             pickle.dump(hand_hist, f)
         hist_name = filename
-        # with open(os.path.join(path, filename), 'w') as stream:
-        #    stream.write(self.text_input.text)
-        print(hist_name)
         self.hist_selected.text = "Generated Histogram : "+hist_name
         self.dismiss_popup()
-
-
-    # def build(self):
-    #     # global capture
-    #     # capture = cv2.VideoCapture(0)
 
     def generate(self):
         global roi,hand_hist
         hand_hist = hand_histogram(roi)
-        print("Histogram generated!")
-        print(hand_hist)
         self.show_save()
 
 
     def flip(self, val):
         global flip
-        # print('called')
         if val == 0:
             flip = 1
             # Flip frame
@@ -414,7 +389,6 @@ class MainScreen(Screen):
         super(MainScreen, self).__init__(**kwargs)
         global flag
         flag = 0
-        # print('called')
 
     def dismiss_popup(self):
         self._popup.dismiss()
@@ -448,7 +422,6 @@ class MainScreen(Screen):
         self.dismiss_popup()
 
     def on_start(self):
-        # print('called')
         global hist_name
         if hist_name == None:
             hist_name = ''
@@ -505,7 +478,7 @@ class MainScreen(Screen):
         mask = cv2.merge((mask, mask, mask))
         gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
         img = cv2.resize(gray, (128, 128))
-        cv2.imshow('resized', img)
+        cv2.imshow9('resized', img)
         img = cv2.resize(gray, (64, 64))
         img2 = img.reshape(1, 64, 64, 1)
         prediction = model.predict_classes(img2)
@@ -537,7 +510,7 @@ class MainScreen(Screen):
                         r = 0
                     else:
                         result = str(chr(prediction[0] + 65))
-                    # result = str(chr(result_map(str(prediction)) + 65))
+
                     self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
                     print(prediction[0])
@@ -580,6 +553,7 @@ class MainScreen(Screen):
 
             return result
 
+    # Priyadarshi
     # def predict(self):
     #     pass
 
