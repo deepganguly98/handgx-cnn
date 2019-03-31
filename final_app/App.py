@@ -553,7 +553,7 @@ class MainScreen(Screen):
 
             return result
 
-    # Priyadarshi
+    # # Priyadarshi
     # def predict(self):
     #     pass
 
@@ -633,8 +633,8 @@ class MainScreen(Screen):
         self.timer_lbl.text = str(timer_val) + ' s'
 
     def image(self):
-        pop = Popup(title='Hand Signs Reference Chart', content=Image(source='images/texture3.jpg'),
-                    size_hint=(None, None), size=(1000, 800))
+        pop = Popup(title='Hand Signs Reference Chart', content=Image(source='../images/ref3.png'),
+                    size_hint=(None, None), size=(800, 650))
         pop.open()
 
     def speak(self):
