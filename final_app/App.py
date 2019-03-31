@@ -3,35 +3,28 @@ import kivy
 kivy.require('1.10.1')
 
 import numpy as np
-import cv2
-import pyttsx
-import imutils
 import pickle
+import pyttsx
 import os
-
+import imutils
+import cv2
 from create_histogram import *
 
-#import kivy.core.text
-#from kivy.uix.gridlayout import GridLayout
-#from kivy.core.window import Window
-#from kivy.uix.dropdown import DropDown
-#from keras.models import load_model
-#from kivy.uix.checkbox import CheckBox
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
-from kivy.uix.boxlayout import BoxLayout
+
 from kivy.core.window import Window
-from kivy.config import Config
+
 from kivy.uix.label import Label
-from kivy.base import EventLoop
+
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
-from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
+
 
 # _________________
 # GLOBAL VARIABLES
@@ -183,7 +176,8 @@ class KivyCamera2(Image):
             upper_skin = np.array([u_hue, u_saturation, u_value], dtype=np.uint8)
             mask = cv2.inRange(hsv, lower_skin, upper_skin)
             mask = cv2.GaussianBlur(mask, (5, 5), 0)
-
+            if flip == 1:
+                mask = cv2.flip(mask, 1)
             return mask
         except:
             pass
@@ -221,8 +215,6 @@ class KivyCamera2(Image):
     def update(self, dt):
         global roi, capture
         return_value, frame = capture.read()
-        if capture == None:
-            print('none')
         frame = cv2.flip(frame, 1)
         if flip == 1:
             frame = cv2.flip(frame,1)
@@ -275,7 +267,7 @@ class SplashScreen(Screen):
     def __init__(self, **kwargs):
         super(SplashScreen, self).__init__(**kwargs)
         Window.size = (500, 300)
-        print('called on its own')
+        Window.borderless = True
         self.timer_start()
 
     def timer_start(self):
@@ -310,6 +302,7 @@ class HistCreationScreen(Screen):
 
     def histenter(self):
         Window.size = (1350, 620)
+        Window.borderless = False
         global capture
         self.qrcam.start(capture)
 
@@ -438,21 +431,17 @@ class MainScreen(Screen):
 
     def model_switch(self, x):
         global model, model_text
-        print('inside model_switch')
         if x == 1:
             model = model_num
             model_text = "Numeric Model"
-            print('Model shifted')
 
         if x == 2:
             model = model_alpha
             model_text = "Alphabetic model"
-            print('Model shifted')
 
         if x == 3:
             model = model_sym
             model_text = "Symbol model"
-            print('Model shifted')
 
         return model_text
 
@@ -483,15 +472,12 @@ class MainScreen(Screen):
     def predict_model(self, mask):
         mask = cv2.merge((mask, mask, mask))
         gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-        img = cv2.resize(gray, (128, 128))
-        cv2.imshow9('resized', img)
         img = cv2.resize(gray, (64, 64))
         img2 = img.reshape(1, 64, 64, 1)
-        print(model)
         prediction = model.predict_classes(img2)
         predict_prob = model.predict(img2)
         prob = predict_prob[0][np.argmax(predict_prob[0])]
-        print(predict_prob[0][np.argmax(predict_prob[0])])
+        # print(predict_prob[0][np.argmax(predict_prob[0])])
 
         return prediction, prob
 
@@ -520,18 +506,13 @@ class MainScreen(Screen):
 
                     self.predicted_output.text = result + "(prob=" + str(int(prob * 100)) + "%)"
                     self.model_used.text = model_text
-                    print(prediction[0])
 
             if model == model_num:
                 if prediction[0] == 10:
                     model_text = self.model_switch(3)
-                    # model switch
                     r = 1
                 elif prediction[0] == 11:
-                    print('model switch selected and called')
                     model_text = self.model_switch(2)
-                    print('outside model switch')
-                    # model switch
                     r = 1
                 else:
                     if r == 1:
@@ -559,10 +540,6 @@ class MainScreen(Screen):
                     self.model_used.text = model_text
 
             return result
-
-    # # Priyadarshi
-    # def predict(self):
-    #     pass
 
     def timer_to_predict(self, dt):
         global interval, timer_val, check
