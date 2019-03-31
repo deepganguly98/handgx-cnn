@@ -335,10 +335,12 @@ class HistCreationScreen(Screen):
         global hist_name, hand_hist
         with open(os.path.join(path, filename[0]), "rb") as f:
             hand_hist = pickle.load(f)
-        text = re.split('/',filename[0])
-        hist_name = text[len(text)-1]
-        print(hist_name)
-        print(hand_hist)
+        # text = re.split('/',filename[0])
+        # text = re.split('\\',text)
+        # hist_name = text[len(text)-1]
+        hist_name = os.path.basename(filename[0])
+            # print(hist_name)
+            # print(hand_hist)
         self.hist_selected.text = "Loaded Histogram : " + hist_name
         self.dismiss_popup()
 
@@ -430,13 +432,19 @@ class MainScreen(Screen):
         self._popup.open()    
 
     def save_txt(self, path, filename):
+        filename = filename + '.txt'
         with open(os.path.join(path, filename), 'w') as stream:
            stream.write(self.sentence.text)
         self.dismiss_popup()
 
     def load_txt(self, path, filename):
-        with open(os.path.join(path, filename[0])) as stream:
-            self.sentence.text = stream.read()
+        try:
+            with open(os.path.join(path, filename[0])) as stream:
+                self.sentence.text = stream.read()
+        except:
+            pop = Popup(title='Incorrect File Format', content=Label(text = "Choose a (.txt) file"),
+                    size_hint=(None, None), size=(200, 150))
+            pop.open()
         self.dismiss_popup()
 
     def on_start(self):
@@ -672,19 +680,15 @@ class MainScreen(Screen):
         self.qrcam2_2.stop1()
         self.manager.current = 'hist'
 
-
 class ScreenManagement(ScreenManager):
     pass
 
-
 App_kv = Builder.load_file("App.kv")
-
 
 class MainApp(App):
 
     def build(self):
         return App_kv
-
 
 if __name__ == '__main__':
     MainApp().run()
