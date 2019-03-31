@@ -24,7 +24,7 @@ from kivy.graphics.texture import Texture
 from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.uix.floatlayout import FloatLayout
-from kivy.config import Config
+
 
 # _________________
 # GLOBAL VARIABLES
@@ -268,7 +268,6 @@ class SplashScreen(Screen):
         super(SplashScreen, self).__init__(**kwargs)
         Window.size = (500, 300)
         Window.borderless = True
-        #Config.set('graphics', 'fullscreen', 'fake')
         self.timer_start()
 
     def timer_start(self):
