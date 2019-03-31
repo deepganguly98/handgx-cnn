@@ -12,12 +12,12 @@ import re
 
 from create_histogram import *
 
-import kivy.core.text
-from kivy.uix.gridlayout import GridLayout
-from kivy.core.window import Window
-from kivy.uix.dropdown import DropDown
-from keras.models import load_model
-from kivy.uix.checkbox import CheckBox
+#import kivy.core.text
+#from kivy.uix.gridlayout import GridLayout
+#from kivy.core.window import Window
+#from kivy.uix.dropdown import DropDown
+#from keras.models import load_model
+#from kivy.uix.checkbox import CheckBox
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
@@ -33,8 +33,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.popup import Popup
 from kivy.factory import Factory
 from kivy.uix.floatlayout import FloatLayout
-from kivy.animation import Animation
-from kivy.uix.progressbar import ProgressBar
+
 # _________________
 # GLOBAL VARIABLES
 # -----------------
@@ -77,9 +76,9 @@ hist_name = None
 #Splash screen counter
 splash_timer = 0
 
-model_alpha = load_model('../model/extended_atoz_2.h5')
-model_num = load_model('../model/extended_0to9_2.h5')
-model_sym = load_model('../model/extended_0to9_2.h5')
+model_alpha = None
+model_num = None
+model_sym = None
 
 model = model_alpha
 model_text = 'Alphabetic model'
@@ -293,6 +292,13 @@ class SplashScreen(Screen):
         global splash_timer
         splash_timer = splash_timer + 1
         self.ids.pb.value = splash_timer
+        if (splash_timer == 50):
+            global model_alpha, model_num, model_sym, model
+            from keras.models import load_model
+            model_alpha = load_model('../model/extended_atoz_2.h5')
+            model_num = load_model('../model/extended_0to9_2.h5')
+            model_sym = load_model('../model/extended_0to9_2.h5')
+            model = model_alpha
         if (splash_timer == 100):
             Clock.unschedule(self.update)
             global capture
@@ -508,6 +514,7 @@ class MainScreen(Screen):
         cv2.imshow('resized', img)
         img = cv2.resize(gray, (64, 64))
         img2 = img.reshape(1, 64, 64, 1)
+        print(model)
         prediction = model.predict_classes(img2)
         predict_prob = model.predict(img2)
         prob = predict_prob[0][np.argmax(predict_prob[0])]
