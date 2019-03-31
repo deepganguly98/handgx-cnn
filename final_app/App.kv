@@ -15,7 +15,6 @@ ScreenManagement:
 <SplashScreen>:
     name: 'splash'
     pb:pb
-    #on_enter: root.start()
     canvas :
         Rectangle:
 			source: "../images/splash.png"
@@ -90,17 +89,14 @@ ScreenManagement:
                         size_hint: (1,None)
                         height: self.texture_size[1] + (2*root.padding[1])
                         font_size: root.button_font_size
-                        #background_normal: '../images/left.png'
                         background_color: (1, 1, 1, 0.8)
                         on_press: root.flip(0)
                     Button:
                         id: right_hand
                         text: 'Right'
                         size_hint: (1,None)
-                        #height: self.texture_size[1] + (2*root.padding[1])
                         height: left_hand.height
                         font_size: root.button_font_size
-                        #background_normal: '../images/right.png'
                         background_color: (1, 1, 1, 0.8)
                         on_press: root.flip(1)
                 Label:
