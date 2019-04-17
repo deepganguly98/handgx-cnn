@@ -261,7 +261,7 @@ ScreenManagement:
 			GridLayout:
 				rows:4	
 				Label:
-					text: 'UPPER HSL'
+					text: 'UPPER HSV'
 					size_hint: (1, None)
 					height: self.texture_size[1]
 					font_size: root.label_fonts_3
@@ -272,18 +272,19 @@ ScreenManagement:
 						text: 'Upper Hue:'
 						font_size: root.label_fonts_3
 						italic: True
-						color: (0.95, 0.39, 0.25,1)
+						color: (0.25, 0.95, 0.73, 1)
+						#color: (0.95, 0.39, 0.25,1)
 					Slider:
 						size_hint: (1, None)
 						id: u_hue 
 						min: 0
 						max: 255
 						step:1
-						value: 88
+						value: 238
 						on_value: root.slider_change_u_hue(u_hue.value)
 					Label:
 						id: u_hue_lbl
-						text: '88'
+						text: '238'
 						size_hint_x: None
 						width: self.texture_size[0] + slider_main.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -301,11 +302,11 @@ ScreenManagement:
 						min: 0
 						step:1
 						max: 255
-						value: 169
+						value: 255
 						on_value: root.slider_change_u_saturation(u_saturation.value)
 					Label:
 						id: u_sat_lbl
-						text: '169'
+						text: '255'
 						size_hint_x: None
 						width: self.texture_size[0] + slider_main.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -316,18 +317,19 @@ ScreenManagement:
 						text: 'Upper Value:'
 						font_size: root.label_fonts_3
 						italic: True
-						color: (0.95, 0.25, 0.54, 1)
+						color: (0.25, 0.95, 0.73, 1)
+						#color: (0.95, 0.25, 0.54, 1)
 					Slider:
 						size_hint: (1, None)
 						id: u_value
 						min: 0
 						step:1
 						max: 255
-						value: 190
+						value: 158
 						on_value: root.slider_change_u_value(u_value.value)
 					Label:
 						id: u_val_lbl
-						text: '190'
+						text: '158'
 						size_hint_x: None
 						width: self.texture_size[0] + slider_main.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -335,7 +337,7 @@ ScreenManagement:
 			GridLayout:
 				rows: 4
 				Label:
-					text: 'LOWER HSL'
+					text: 'LOWER HSV'
 					size_hint: (1, None)
 					height: self.texture_size[1]
 					font_size: root.label_fonts_3
@@ -345,7 +347,8 @@ ScreenManagement:
 						text: 'Lower Hue:'
 						font_size: root.label_fonts_3
 						italic: True
-						color: (0.95, 0.39, 0.25,1)
+						color: (0.25, 0.95, 0.73, 1)
+						#color: (0.95, 0.39, 0.25,1)
 					Slider:
 						size_hint: (1, None)
 						id: l_hue
@@ -374,11 +377,11 @@ ScreenManagement:
 						min: 0
 						step:1
 						max: 255
-						value: 54
+						value: 0
 						on_value: root.slider_change_l_saturation(l_saturation.value)
 					Label:
 						id: l_sat_lbl
-						text: '54'
+						text: '0'
 						size_hint_x: None
 						width: self.texture_size[0] + slider_main.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
@@ -389,18 +392,19 @@ ScreenManagement:
 						text: 'Lower Value:'
 						font_size: root.label_fonts_3
 						italic: True
-						color: (0.95, 0.25, 0.54, 1)
+						color: (0.25, 0.95, 0.73, 1)
+						#color: (0.95, 0.25, 0.54, 1)
 					Slider:
 						size_hint: (1,None)
 						id: l_value
 						min: 0
 						step:1
 						max: 255
-						value: 0
+						value: 26
 						on_value : root.slider_change_l_value(l_value.value)
 					Label:
 						id: l_val_lbl
-						text: '0'
+						text: '26'
 						size_hint_x: None
 						width: self.texture_size[0] + slider_main.padding[0]
 						color: (0.94, 0.95, 0.25, 1)
