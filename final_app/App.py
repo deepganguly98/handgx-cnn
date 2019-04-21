@@ -458,6 +458,9 @@ class MainScreen(Screen):
 
         return model_text
 
+    def backspace():
+        self.predicted_output.text = self.predicted_output.text[:-2]
+
     def result_map(self, x):
         ans = ''
         if x == 2:
@@ -479,7 +482,8 @@ class MainScreen(Screen):
         elif x == 10:
             ans = ' '
         elif x == 11:
-            ans = chr(8)
+            ans = ''
+            self.backspace()
         return str(ans)
 
     def predict_model(self, mask):
